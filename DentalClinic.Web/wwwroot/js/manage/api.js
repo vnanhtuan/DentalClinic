@@ -1,4 +1,6 @@
-﻿// 1. Tạo một instance Axios
+﻿import { handleApiError } from '../utils/errorHandler.js';
+
+// 1. Tạo một instance Axios
 const api = axios.create({
     baseURL: '/' // URL gốc cho mọi API call
 });
@@ -7,7 +9,6 @@ const api = axios.create({
 // Đoạn code này sẽ chạy TRƯỚC KHI bất kỳ request nào được gửi đi
 api.interceptors.request.use(
     (config) => {
-        // 3. Lấy token từ localStorage
         const token = localStorage.getItem('manage-token');
 
         // 4. Nếu token tồn tại, gán nó vào header
@@ -35,21 +36,14 @@ api.interceptors.response.use(
     (error) => {
         // Kiểm tra xem có lỗi 401 (Unauthorized) không
         if (error.response && error.response.status === 401) {
-
-            // 1. Xóa token cũ/hết hạn
             localStorage.removeItem('manage-token');
-
-            // 2. Chuyển hướng về trang login
-            // Dùng window.location để reload lại trang, 
-            // đảm bảo mọi trạng thái của Vue được reset sạch sẽ.
             window.location.href = '/manage/login';
         }
 
         // 3. Đối với các lỗi khác (như 404, 500), 
         // cứ để component tự xử lý (vào khối 'catch')
-        return Promise.reject(error);
+        return Promise.reject(handleApiError(error));
     }
 );
 
-// 5. Export instance đã được cấu hình
 export default api;

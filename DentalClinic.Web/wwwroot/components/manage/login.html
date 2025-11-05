@@ -1,28 +1,88 @@
 ﻿
-<v-container class="fill-height">
-    <v-row align="center" justify="center">
-        <v-col cols="12" sm="8" md="4">
-            <v-card class="elevation-12">
-                <v-toolbar color="primary">
-                    <v-toolbar-title>Đăng nhập Dental Clinic</v-toolbar-title>
-                </v-toolbar>
-                <v-card-text>
-                    <v-form @submit.prevent="handleLogin">
-                        <v-text-field label="Email"
-                                        prepend-icon="mdi-account"
-                                        type="email"
-                                        v-model="email"></v-text-field>
-                        <v-text-field label="Password"
-                                        prepend-icon="mdi-lock"
-                                        type="password"
-                                        v-model="password"></v-text-field>
-                    </v-form>
-                </v-card-text>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="primary" @click="handleLogin">Đăng nhập</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-col>
-    </v-row>
-</v-container>
+    <v-container fluid class="fill-height login-background-container">
+        <div class="background-elements">
+            <span class="shape shape-1"></span>
+            <span class="shape shape-2"></span>
+            <span class="shape shape-3"></span>
+            <span class="shape shape-4"></span>
+            <span class="shape shape-5"></span>
+        </div>
+
+        <v-row align="center" justify="center" class="login-content-row">
+            <v-col cols="12" sm="8" md="6" lg="4">
+                <v-card class="login-card" rounded="xl" elevation="10">
+                    <v-card-text class="pa-8">
+                        <div class="text-center mb-6">
+                            <div class="logo-placeholder text-h5 font-weight-bold text-primary mb-2">
+                                DENTAL CLINIC
+                            </div>
+                            <h2 class="text-h5 font-weight-bold text-grey-darken-3">Login</h2>
+                        </div>
+
+                        <v-form @submit.prevent="handleLogin" class="mt-4">
+                            <v-text-field label="Email"
+                                          v-model="email"
+                                          prepend-inner-icon="mdi-email-outline"
+                                          variant="outlined"
+                                          density="comfortable"
+                                          required
+                                          class="mb-4"></v-text-field>
+
+                            <v-text-field label="Password"
+                                          v-model="password"
+                                          prepend-inner-icon="mdi-lock-outline"
+                                          variant="outlined"
+                                          density="comfortable"
+                                          :type="showPassword ? 'text' : 'password'"
+                                          :append-inner-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
+                                          @click:append-inner="showPassword = !showPassword"
+                                          required
+                                          class="mb-4"></v-text-field>
+
+                            <div class="text-right mb-6">
+                                <a href="#" class="text-primary text-decoration-none text-caption">Forgot Password?</a>
+                            </div>
+
+                            <v-btn type="submit"
+                                   color="primary"
+                                   size="large"
+                                   block
+                                   rounded="lg"
+                                   class="mb-4 text-h6"
+                                   :loading="loading"
+                                   :disabled="loading">
+                                Sign in
+                            </v-btn>
+
+                            <v-alert v-if="error" type="error" dense class="mb-4" closable>{{ error }}</v-alert>
+
+                            <v-divider class="my-6">or continue with</v-divider>
+
+                            <v-row no-gutters justify="center" class="mb-6">
+                                <v-col cols="auto" class="px-2">
+                                    <v-btn icon size="large" variant="outlined" class="social-btn">
+                                        <v-icon color="grey-darken-1">mdi-google</v-icon>
+                                    </v-btn>
+                                </v-col>
+                                <v-col cols="auto" class="px-2">
+                                    <v-btn icon size="large" variant="outlined" class="social-btn">
+                                        <v-icon color="grey-darken-1">mdi-github</v-icon>
+                                    </v-btn>
+                                </v-col>
+                                <v-col cols="auto" class="px-2">
+                                    <v-btn icon size="large" variant="outlined" class="social-btn">
+                                        <v-icon color="grey-darken-1">mdi-facebook</v-icon>
+                                    </v-btn>
+                                </v-col>
+                            </v-row>
+
+                            <div class="text-center text-caption text-grey-darken-1">
+                                Don't have an account yet?
+                                <a href="#" class="text-primary text-decoration-none font-weight-bold">Register for free</a>
+                            </div>
+                        </v-form>
+                    </v-card-text>
+                </v-card>
+            </v-col>
+        </v-row>
+    </v-container>

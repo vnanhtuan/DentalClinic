@@ -1,0 +1,134 @@
+﻿.login-background-container {
+    background: linear-gradient(135deg, #1e3a8a 0%, #172554 100%); /* Nền gradient xanh đậm */
+    position: relative;
+    overflow: hidden; /* Ẩn các hình khối vượt ra ngoài */
+}
+
+.background-elements {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* Đảm bảo không cản trở tương tác */
+}
+
+.shape {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.08); /* Màu trắng trong suốt */
+    border-radius: 50%; /* Hình tròn */
+    filter: blur(50px); /* Hiệu ứng mờ */
+}
+
+.shape-1 {
+    top: 10%;
+    left: 5%;
+    width: 200px;
+    height: 200px;
+    animation: float 10s ease-in-out infinite alternate;
+}
+
+.shape-2 {
+    bottom: 15%;
+    right: 10%;
+    width: 250px;
+    height: 250px;
+    animation: float 12s ease-in-out infinite alternate-reverse;
+}
+
+.shape-3 {
+    top: 40%;
+    right: 20%;
+    width: 150px;
+    height: 150px;
+    animation: float 8s ease-in-out infinite alternate;
+}
+
+.shape-4 {
+    bottom: 5%;
+    left: 30%;
+    width: 180px;
+    height: 180px;
+    animation: float 11s ease-in-out infinite alternate-reverse;
+}
+
+.shape-5 {
+    top: 25%;
+    left: 70%;
+    width: 220px;
+    height: 220px;
+    animation: float 9s ease-in-out infinite alternate;
+}
+
+@keyframes float {
+    0% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    50% {
+        transform: translate(20px, 20px) scale(1.05);
+    }
+
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+}
+
+.login-card {
+    backdrop-filter: blur(15px); /* Hiệu ứng kính mờ */
+    background-color: rgba(255, 255, 255, 0.15) !important; /* Nền card trong suốt hơn */
+    border: 1px solid rgba(255, 255, 255, 0.2); /* Đường viền nhẹ */
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3); /* Bóng đổ mạnh hơn */
+}
+
+.login-card .v-card-text,
+.login-card .v-toolbar__title {
+    color: #fff !important; /* Đảm bảo chữ trắng trên nền tối */
+}
+
+.v-text-field .v-input__control {
+    background-color: rgba(255, 255, 255, 0.05) !important; /* Nền input hơi trong suốt */
+    border-radius: 8px; /* Bo tròn input */
+}
+
+.v-text-field .v-input__prepend-inner > .v-icon {
+    color: rgba(255, 255, 255, 0.7) !important; /* Màu icon */
+}
+
+.v-text-field label.v-label {
+    color: rgba(255, 255, 255, 0.7) !important; /* Màu label */
+}
+
+.v-text-field .v-input__control input {
+    color: #fff !important; /* Màu chữ nhập */
+}
+
+.v-text-field .v-field--variant-outlined .v-field__outline {
+    border-color: rgba(255, 255, 255, 0.3) !important; /* Màu viền input */
+}
+
+.social-btn {
+    border-color: rgba(255, 255, 255, 0.4) !important;
+}
+
+/* Điều chỉnh màu primary cho các nút, alerts... */
+.v-btn.v-btn--active, .v-btn.v-btn--focused, .v-btn.v-btn--hover {
+    background-color: #3f51b5 !important; /* Custom hover/active state for primary */
+}
+
+.text-primary {
+    color: #90CAF9 !important; /* Sáng hơn một chút cho chữ primary trên nền tối */
+}
+
+a.text-primary {
+    color: #BBDEFB !important; /* Sáng hơn cho các link */
+}
+
+.v-divider {
+    border-color: rgba(255, 255, 255, 0.3) !important;
+    color: rgba(255, 255, 255, 0.6) !important; /* Chữ "or continue with" */
+}
+
+.text-grey-darken-1 {
+    color: rgba(255, 255, 255, 0.7) !important;
+}

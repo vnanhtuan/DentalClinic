@@ -1,4 +1,5 @@
 ﻿import api from '../api.js';
+import { handleApiError } from '../../utils/errorHandler.js';
 
 const response = await fetch('/components/manage/login.html');
 const templateHtml = await response.text();
@@ -9,6 +10,8 @@ export const LoginPage = {
         return {
             email: '',
             password: '',
+            showPassword: false,
+            loading: false,
             error: null
         };
     },
@@ -23,7 +26,9 @@ export const LoginPage = {
                 localStorage.setItem('manage-token', response.data.token);
                 this.$router.push({ name: 'Dashboard' });
             } catch (err) {
-                this.error = 'Đăng nhập thất bại.';
+                this.error = handleApiError(err);
+            } finally {
+                this.loading = false;
             }
         }
     }
