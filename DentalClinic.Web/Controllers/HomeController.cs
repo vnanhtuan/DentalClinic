@@ -1,6 +1,8 @@
-using System.Diagnostics;
+using DentalClinic.Application.Interfaces;
+using DentalClinic.Domain.Interfaces;
 using DentalClinic.Web.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 
 namespace DentalClinic.Web.Controllers
 {
@@ -8,7 +10,9 @@ namespace DentalClinic.Web.Controllers
     {
         private readonly ILogger<HomeController> _logger;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger,
+            IUserManagementService userManagementService,
+            IUserRepository userRepository)
         {
             _logger = logger;
         }

@@ -1,4 +1,4 @@
-﻿using DentalClinic.Infrastructure.Entities;
+﻿using DentalClinic.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace DentalClinic.Infrastructure

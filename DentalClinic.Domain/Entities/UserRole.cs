@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace DentalClinic.Infrastructure.Entities
+namespace DentalClinic.Domain.Entities
 {
     public class UserRole
     {

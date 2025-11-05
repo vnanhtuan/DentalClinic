@@ -1,4 +1,4 @@
-﻿namespace DentalClinic.Infrastructure.Entities
+﻿namespace DentalClinic.Domain.Entities
 {
     public class Invoice
     {
