@@ -18,6 +18,42 @@ const routes = [
                 path: '', // /manage
                 name: 'Dashboard',
                 component: DashboardPage
+            },
+            {
+                path: 'patients',
+                name: 'Patients',
+                component: DashboardPage, // Temporary, will be replaced later
+                meta: { breadcrumbTitle: 'Hồ sơ bệnh nhân', requiresAuth: true }
+            },
+            {
+                path: 'patients/:id',
+                name: 'PatientDetail',
+                component: DashboardPage, // Temporary, will be replaced later
+                meta: { breadcrumbTitle: 'Chi tiết hồ sơ', requiresAuth: true }
+            },
+            {
+                path: 'appointments',
+                name: 'Appointments',
+                component: DashboardPage, // Temporary, will be replaced later
+                meta: { breadcrumbTitle: 'Lịch hẹn', requiresAuth: true }
+            },
+            {
+                path: 'treatments',
+                name: 'Treatments',
+                component: DashboardPage, // Temporary, will be replaced later
+                meta: { breadcrumbTitle: 'Quy trình điều trị', requiresAuth: true }
+            },
+            {
+                path: 'staff',
+                name: 'Staff',
+                component: DashboardPage, // Temporary, will be replaced later
+                meta: { breadcrumbTitle: 'Nhân sự', requiresAuth: true }
+            },
+            {
+                path: 'inventory',
+                name: 'Inventory',
+                component: DashboardPage, // Temporary, will be replaced later
+                meta: { breadcrumbTitle: 'Quản lý kho', requiresAuth: true }
             }
         ]
     },

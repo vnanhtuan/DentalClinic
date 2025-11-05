@@ -1,15 +1,15 @@
 ﻿<v-app>
     <v-layout>
-        <v-app-bar color="primary">
+        <v-app-bar class="main-app-bar-color">
             <v-app-bar-nav-icon v-if="isMobile"
                                 @click="toggleMobileDrawer"></v-app-bar-nav-icon>
 
-            <v-app-bar-title>Trang Quản Trị</v-app-bar-title>
+            <v-app-bar-title class="font-weight-bold">{{ currentRouteTitle }}</v-app-bar-title>
             <v-spacer></v-spacer>
 
             <v-tooltip location="bottom">
                 <template v-slot:activator="{ props }">
-                    <v-btn v-bind="props" icon="mdi-logout" @click="handleLogout"></v-btn>
+                    <v-btn v-bind="props" icon="mdi-logout" @click="handleLogout" class="text-white"></v-btn>
                 </template>
                 <span>Đăng xuất</span>
             </v-tooltip>
@@ -17,26 +17,42 @@
 
         <v-navigation-drawer v-model="drawer"
                              :rail="rail"
-                             :temporary="isMobile" :permanent="!isMobile">
+                             :temporary="isMobile"
+                             :permanent="!isMobile"
+                             class="bg-white">
             <div v-if="!isMobile" class="d-flex justify-end pa-2">
                 <v-btn variant="text"
                        :icon="rail ? 'mdi-chevron-right' : 'mdi-chevron-left'"
-                       @click="toggleRail"></v-btn>
+                       @click="toggleRail"
+                       color="primary"></v-btn>
             </div>
 
             <v-divider v-if="!isMobile"></v-divider>
 
             <v-list density="compact" nav>
-                <router-link to="/manage" custom v-slot="{ navigate }">
+                <router-link v-for="item in navItems" :key="item.title" :to="item.route" custom v-slot="{ href, navigate, isActive }">
                     <v-list-item @click="navigate"
-                                 prepend-icon="mdi-view-dashboard"
-                                 title="Dashboard"
-                                 value="dashboard"></v-list-item>
+                                 :prepend-icon="item.icon"
+                                 :title="item.title"
+                                 :value="item.value"
+                                 :active="isActive"
+                                 active-color="primary"></v-list-item>
                 </router-link>
             </v-list>
         </v-navigation-drawer>
         <v-main>
-            <router-view></router-view>
+            <v-container fluid class="pa-6">
+                <v-breadcrumbs :items="breadcrumbs" class="pa-0 mb-4 text-caption">
+                    <template v-slot:divider>
+                        <v-icon icon="mdi-chevron-right" size="small"></v-icon>
+                    </template>
+                    <template v-slot:title="{ item }">
+                        <!-- Sử dụng text-primary-color (từ SCSS) cho màu sắc -->
+                        <span :class="{'font-weight-bold text-primary-color': item.disabled}">{{ item.title }}</span>
+                    </template>
+                </v-breadcrumbs>
+                <router-view></router-view>
+            </v-container>
         </v-main>
     </v-layout>
 </v-app>

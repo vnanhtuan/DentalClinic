@@ -8,19 +8,28 @@ export const LoginPage = {
     template: templateHtml,
     data() {
         return {
-            email: '',
+            username: '',
             password: '',
             showPassword: false,
+            rememberMe: false,
             loading: false,
-            error: null
+            error: null,
+            rules: {
+                required: value => !!value || 'This field is required.'
+            }
         };
     },
     methods: {
         async handleLogin() {
+            const { valid } = await this.$refs.loginForm.validate();
+            if (!valid) return;
+
+            this.loading = true;
             this.error = null;
+
             try {
                 const response = await api.post('/api/manage/auth/login', {
-                    email: this.email,
+                    username: this.username,
                     password: this.password
                 });
                 localStorage.setItem('manage-token', response.data.token);
@@ -30,6 +39,11 @@ export const LoginPage = {
             } finally {
                 this.loading = false;
             }
+        },
+        loginWithGoogle() {
+            // Logic để đăng nhập bằng Google (cần tích hợp Google OAuth)
+            console.log('Login with Google clicked');
+            alert('Chức năng đăng nhập bằng Google chưa được triển khai.');
         }
     }
 };

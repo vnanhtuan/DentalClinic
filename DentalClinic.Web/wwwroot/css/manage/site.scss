@@ -1,0 +1,169 @@
+$primary-brand-color:#2193b0;
+$secondary-brand-color: #33A1E0; 
+$gradient-start: #2193b0; 
+$gradient-end: #6dd5ed;   
+
+$background-light: #f7f9fc; // Nền sáng cho cột trái
+$text-dark: #333;
+$text-light-grey: #666;
+
+// ----------------------------------------------------
+// GLOBAL UTILITY CLASSES
+// ----------------------------------------------------
+.btn-primary, .bg-primary-grad {
+    background: linear-gradient(90deg, $primary-brand-color 0%, $secondary-brand-color 100%) !important;
+    color: white !important;
+}
+
+.btn-secondary {
+    background-color: $text-light-grey !important;
+    color: white !important;
+}
+
+.btn-light {
+    background-color: $background-light !important;
+    color: $text-dark !important;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.text-primary-color {
+    color: $primary-brand-color !important;
+}
+
+.border-primary-color {
+    border-color: $primary-brand-color !important;
+}
+// ----------------------------------------------------
+// END GLOBAL UTILITY CLASSES
+// ----------------------------------------------------
+
+.main-app-bar-color {
+    background: linear-gradient(90deg, $gradient-start 0%, $gradient-end 100%) !important;
+    .v-toolbar__content {
+        color: white !important;
+    }
+}
+
+.new-login-container {
+    background-color: $background-light;
+    .v-row {
+        height: 100%;
+    }
+}
+
+.new-login-left-col {
+    background-color: #FFFFFF; // Nền trắng cho cột form
+    position: relative; // Để đặt copyright text
+    .logo-position-override {
+        margin-top: 0; 
+        margin-bottom: 30px !important; // Tăng khoảng cách dưới logo
+    }
+}
+
+.new-login-card {
+    background: none !important; // Làm cho v-card trong suốt
+    box-shadow: none !important; // Loại bỏ box shadow mặc định
+    padding: 20px;
+}
+
+.new-login-right-col {
+    background: linear-gradient(135deg, $gradient-start 0%, $gradient-end 100%);
+    // background-color: $primary-brand-color; // Hoặc một màu solid
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-align: center;
+    padding: 60px !important; // Tăng padding
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2); // Tạo chút chiều sâu
+    
+    .text-h3 {
+        line-height: 1.2; // Tối ưu dòng
+    }
+    .text-subtitle-1 {
+        max-width: 450px; // Giới hạn chiều rộng text
+        margin: 0 auto;
+    }
+
+    .dot {
+        height: 8px;
+        width: 8px;
+        background-color: rgba(255, 255, 255, 0.4);
+        border-radius: 50%;
+        display: inline-block;
+        margin: 0 4px;
+        transition: background-color 0.3s ease;
+        &.active {
+            background-color: white;
+            width: 20px; // Active dot dài hơn
+            border-radius: 4px; // Hình elip
+        }
+    }
+}
+
+// ----------------------------------------------------
+// 3. Kiểu dáng Component Vuetify cụ thể
+// ----------------------------------------------------
+
+// Button Google
+.social-google-btn {
+    background-color: #4285F4 !important; // Màu Google blue
+    color: white !important;
+    .v-icon {
+        margin-right: 8px; // Khoảng cách giữa icon và text
+    }
+}
+
+// Divider
+.v-divider {
+    border-color: rgba(0, 0, 0, 0.1) !important;
+    .text-caption {
+        background-color: #FFFFFF; // Đảm bảo text nằm trên nền trắng
+        padding: 0 10px;
+    }
+}
+
+// Input Fields
+.v-text-field {
+    label {
+        color: $text-light-grey !important;
+    }
+    &.v-input--is-focused .v-field__outline {
+        border-color: $primary-brand-color !important; // Màu viền khi focus
+    }
+}
+
+// Checkbox và Forgot Password
+.v-checkbox .v-label {
+    font-size: 0.875rem !important; // text-caption
+    color: $text-light-grey !important;
+}
+
+// Nút Login chính
+.v-btn.bg-primary {
+    background: linear-gradient(90deg, $primary-brand-color 0%, $secondary-brand-color 100%) !important;
+    color: white !important;
+    font-weight: bold;
+}
+
+// Links (Quên mật khẩu, Tạo tài khoản)
+a.text-primary {
+    color: $primary-brand-color !important;
+    font-weight: 600;
+    &:hover {
+        text-decoration: underline !important;
+    }
+}
+
+// Copyright Text (đặt cố định ở góc dưới bên trái của cột trái)
+.copyright-text {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    font-size: 0.75rem; // text-caption
+    color: $text-light-grey;
+    @media (max-width: 959px) { /* Cho mobile/tablet */
+        bottom: 10px;
+    }
+}
