@@ -37,11 +37,20 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
+
 app.UseRouting();
 
 app.UseAuthorization();
 
 app.MapStaticAssets();
+
+// ROUTE CHO MANAGE SPA (USING AREA)
+app.MapControllerRoute(
+    name: "manage",
+    pattern: "manage/{*path}",
+    defaults: new { area = "Manage", controller = "Manage", action = "Index" }
+);
 
 app.MapControllerRoute(
     name: "default",
