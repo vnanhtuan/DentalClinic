@@ -37,12 +37,66 @@ $text-light-grey: #666;
 // END GLOBAL UTILITY CLASSES
 // ----------------------------------------------------
 
+// ----------------------------------------------------
+// STYLE FOR LAYOUT AND SIDEBAR
+// ----------------------------------------------------
 .main-app-bar-color {
     background: linear-gradient(90deg, $gradient-start 0%, $gradient-end 100%) !important;
     .v-toolbar__content {
         color: white !important;
     }
 }
+
+.v-navigation-drawer {
+    .v-list-group__items {
+        .v-list-item {
+            padding-inline-start: 35px !important;
+        }
+    }
+    .v-list-item {
+        .v-list-item__prepend {
+            display: block;
+            margin-inline-end: 10px !important; 
+        }
+    }
+    .v-list {
+        --v-list-group-child-padding: 8px; 
+    }
+}
+
+.v-list-item-nested {
+    padding-inline-start: 34px !important; 
+    .v-list-item__prepend {
+        padding-inline-start: 0px !important; 
+    }
+}
+
+// ----------------------------------------------------
+// ADJUST BREADCRUMBS
+// ----------------------------------------------------
+.v-breadcrumbs {
+    .v-breadcrumbs-item--disabled {
+        color: $text-dark !important;
+        opacity: 0.8 !important; 
+    }
+    .v-icon {
+        opacity: 0.8;
+    }
+    .v-breadcrumbs-item {
+        cursor: pointer;
+        color: $primary-brand-color !important;
+        font-weight: 500;
+        transition: color 0.1s ease-in-out;
+
+        &:hover {
+            color: $secondary-brand-color !important;
+            text-decoration: underline;
+        }
+    }
+}
+// ----------------------------------------------------
+// END BREADCRUMBS
+// ----------------------------------------------------
 
 .new-login-container {
     background-color: $background-light;

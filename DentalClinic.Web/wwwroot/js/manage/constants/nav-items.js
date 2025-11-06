@@ -1,17 +1,30 @@
 ﻿export const GlobalNavItems = [
     {
-        title: 'Bảng Điều Khiển',
+        title: 'Tổng quan',
         icon: 'mdi-view-dashboard',
         route: { name: 'Dashboard' },
         value: 'dashboard',
         roles: ['Admin', 'Staff'] // Chỉ định vai trò được thấy
     },
     {
-        title: 'Lịch Hẹn',
+        title: 'Quản Lý Lịch Hẹn',
         icon: 'mdi-calendar-month',
-        route: { name: 'Appointments' },
         value: 'appointments',
-        roles: ['Admin', 'Staff', 'Receptionist']
+        roles: ['Admin', 'Staff', 'Receptionist'],
+        children: [
+            {
+                title: 'Danh sách lịch hẹn',
+                icon: 'mdi-calendar-check',
+                route: { name: 'AppointmentList' }, // Route Name MỚI
+                value: 'appointment-list'
+            },
+            {
+                title: 'Danh sách lịch hủy',
+                icon: 'mdi-calendar-remove',
+                route: { name: 'CanceledAppointments' }, // Route Name MỚI
+                value: 'canceled-appointments'
+            },
+        ]
     },
     {
         title: 'Hồ Sơ Bệnh Nhân',
@@ -51,7 +64,7 @@
     {
         title: 'Cài Đặt Hệ Thống',
         icon: 'mdi-cog',
-        route: '/manage/settings',
+        route: { name: 'Settings' },
         value: 'settings',
         roles: ['Admin']
     },

@@ -11,6 +11,9 @@ export const LayoutPage = {
             drawer: true,
             rail: false,
             navItems: GlobalNavItems,
+
+            // Biến state để kiểm soát v-list-group đang mở
+            openParentValue: [],
         };
     },
     computed: {
@@ -19,24 +22,36 @@ export const LayoutPage = {
             return this.$vuetify.display.smAndDown;
         },
         breadcrumbs() {
-            // Lấy tất cả các route đã khớp (matched)
-            const matchedRoutes = this.$route.matched;
+            const breadcrumbItems = [];
+            const routeName = this.$route.name;
 
-            const items = matchedRoutes
-                // Lọc chỉ lấy các route có tiêu đề (breadcrumbTitle)
-                .filter(route => route.meta && route.meta.breadcrumbTitle)
-                .map((route, index) => {
-                    const isLast = index === matchedRoutes.length - 1;
-                    return {
-                        title: route.meta.breadcrumbTitle,
-                        disabled: isLast, // Disabled = True cho item cuối cùng
-                        href: isLast ? '' : route.path,
-                        to: isLast ? undefined : route.path,
-                    };
+            // 1. Tìm nhóm cha (v-list-group) nếu route hiện tại là con
+            const parent = GlobalNavItems.find(item =>
+                item.children && item.children.some(child => child.route.name === routeName)
+            );
+
+            if (parent) {
+                // Thêm tiêu đề của nhóm cha (ví dụ: Quản lý Lịch Hẹn). Không có link.
+                breadcrumbItems.push({
+                    title: parent.title,
+                    disabled: false, // Không thể click vì nó không phải là route
+                    to: undefined,
+                    value: parent.value
                 });
+            }
 
-            // Trả về mảng breadcrumb
-            return items;
+            // 2. Thêm tiêu đề của trang hiện tại
+            const currentTitleMeta = this.$route.meta.breadcrumbTitle;
+            if (currentTitleMeta) {
+                breadcrumbItems.push({
+                    title: currentTitleMeta,
+                    disabled: true, // Luôn là mục cuối cùng và disabled
+                    to: undefined,
+                    value: this.$route.name
+                });
+            }
+
+            return breadcrumbItems;
         },
         currentRouteTitle() {
             // Lấy tiêu đề từ meta của route hiện tại
@@ -57,6 +72,23 @@ export const LayoutPage = {
                 }
             },
             immediate: true
+        },
+
+        $route: {
+            handler() {
+                const routeName = this.$route.name;
+                const parent = GlobalNavItems.find(item =>
+                    item.children && item.children.some(child => child.route.name === routeName)
+                );
+
+                // SỬA LỖI: Gán giá trị cho mảng
+                if (parent) {
+                    this.openParentValue = [parent.value]; // Phải là mảng
+                } else {
+                    this.openParentValue = []; // Mảng rỗng
+                }
+            },
+            immediate: true // Chạy ngay khi component tải
         }
     },
     methods: {
@@ -73,6 +105,21 @@ export const LayoutPage = {
         // Hàm này xử lý desktop (thu gọn/mở rộng)
         toggleRail() {
             this.rail = !this.rail;
+        },
+
+        toggleSidebarParent(parentValue) {
+            
+            if (this.rail) {
+                this.rail = false;
+                return;
+            }
+            const index = this.openParentValue.indexOf(parentValue);
+
+            if (index > -1) {
+                this.openParentValue.splice(index, 1);
+            } else {
+                this.openParentValue = [parentValue];
+            }
         }
     }
 };

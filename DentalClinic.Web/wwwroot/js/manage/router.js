@@ -17,7 +17,8 @@ const routes = [
             {
                 path: '', // /manage
                 name: 'Dashboard',
-                component: DashboardPage
+                component: DashboardPage,
+                meta: { breadcrumbTitle: 'Tổng quan', requiresAuth: true }
             },
             {
                 path: 'patients',
@@ -32,10 +33,18 @@ const routes = [
                 meta: { breadcrumbTitle: 'Chi tiết hồ sơ', requiresAuth: true }
             },
             {
-                path: 'appointments',
-                name: 'Appointments',
+                path: 'appointments/list',
+                name: 'AppointmentList',
                 component: DashboardPage, // Temporary, will be replaced later
-                meta: { breadcrumbTitle: 'Lịch hẹn', requiresAuth: true }
+                meta: { breadcrumbTitle: 'Danh sách lịch hẹn', requiresAuth: true }
+            },
+
+            // ROUTE MỚI: LỊCH HẸN ĐÃ HỦY
+            {
+                path: 'appointments/canceled',
+                name: 'CanceledAppointments',
+                component: DashboardPage, // Temporary, will be replaced later
+                meta: { breadcrumbTitle: 'Lịch hủy', requiresAuth: true }
             },
             {
                 path: 'treatments',
@@ -54,6 +63,12 @@ const routes = [
                 name: 'Inventory',
                 component: DashboardPage, // Temporary, will be replaced later
                 meta: { breadcrumbTitle: 'Quản lý kho', requiresAuth: true }
+            },
+            {
+                path: 'settings',
+                name: 'Settings',
+                component: DashboardPage, // Temporary, will be replaced later
+                meta: { breadcrumbTitle: 'Cài Đặt Hệ Thống', requiresAuth: true }
             }
         ]
     },
