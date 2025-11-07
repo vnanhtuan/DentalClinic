@@ -1,16 +1,28 @@
-<v-dialog v-model="show" max-width="500px" persistent>
-    <v-card rounded="lg" elevation="8">
+<v-dialog v-model="show" max-width="500px" :persistent="loading" no-click-animation>
+    <v-card rounded="lg" elevation="8" :class="{ 'dialog-loading': loading }">
+        <!-- Loading Overlay -->
+        <v-overlay v-if="loading" contained class="d-flex align-center justify-center">
+            <div class="text-center">
+                <v-progress-circular 
+                    indeterminate 
+                    color="primary" 
+                    size="48"
+                    width="4">
+                </v-progress-circular>
+                <div class="text-body-2 mt-3 text-medium-emphasis">Đang xử lý...</div>
+            </div>
+        </v-overlay>
         <!-- Dialog Header -->
         <v-card-title class="d-flex align-center pa-4" :class="headerColorClass">
             <v-icon :icon="dialogIcon" size="24" class="me-3"></v-icon>
             <span class="text-h6 font-weight-bold">{{ dialogTitle }}</span>
-            <v-spacer></v-spacer>
-            <v-btn 
+            <v-spacer></v-spacer>            <v-btn 
                 v-if="showCloseButton" 
                 icon="mdi-close" 
                 variant="text" 
                 size="small" 
                 @click="handleClose"
+                :disabled="loading"
                 :class="headerTextClass">
             </v-btn>
         </v-card-title>

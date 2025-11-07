@@ -119,19 +119,27 @@ export const MessageDialogComponent = {
         showCloseButton() {
             return this.showClose;
         }
-    },
-    methods: {
+    },    methods: {
         handleOk() {
-            this.$emit('ok');
-            if (!this.loading) {
-                this.show = false;
+            // Don't emit or close if loading
+            if (this.loading) {
+                return;
             }
+            this.$emit('ok');
         },
         handleCancel() {
+            // Don't allow cancel during loading
+            if (this.loading) {
+                return;
+            }
             this.$emit('cancel');
             this.show = false;
         },
         handleClose() {
+            // Don't allow close during loading  
+            if (this.loading) {
+                return;
+            }
             this.$emit('close');
             this.show = false;
         }
