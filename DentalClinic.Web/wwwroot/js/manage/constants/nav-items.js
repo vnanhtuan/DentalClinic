@@ -57,7 +57,7 @@
     {
         title: 'Nhân Sự',
         icon: 'mdi-account-group',
-        route: { name: 'Staff' },
+        route: { name: 'StaffList' },
         value: 'staff',
         roles: ['Admin', 'HR']
     },
@@ -66,6 +66,15 @@
         icon: 'mdi-cog',
         route: { name: 'Settings' },
         value: 'settings',
-        roles: ['Admin']
+        roles: ['Admin'],
+        children: [
+            {
+                title: 'Quản lý Vai trò',
+                icon: 'mdi-calendar-check',
+                route: { name: 'RoleList' },
+                value: 'role-list'
+            }
+            
+        ]
     },
 ];

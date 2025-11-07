@@ -1,8 +1,8 @@
-﻿import { handleApiError } from '../utils/errorHandler.js';
+﻿import { handleApiError } from './errorHandler.js';
 
 // 1. Tạo một instance Axios
 const api = axios.create({
-    baseURL: '/' // URL gốc cho mọi API call
+    baseURL: '/api/manage' // URL gốc cho mọi API call
 });
 
 // 2. TẠO MỘT "REQUEST INTERCEPTOR" (BỘ ĐÁNH CHẶN REQUEST)

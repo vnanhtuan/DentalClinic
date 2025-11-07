@@ -39,27 +39,23 @@
                             <v-list-item v-bind="props"
                                          :prepend-icon="item.icon"
                                          :title="item.title"></v-list-item>
-                        </template>
-
-                        <!-- Menu Con -->
+                        </template>                        <!-- Menu Con -->
                         <router-link v-for="child in item.children" :key="child.title" :to="child.route" custom v-slot="{ href, navigate, isActive }">
                             <v-list-item @click="navigate"
-                                         :active="isActive"
+                                         :active="isNavItemActive(child)"
                                          :prepend-icon="child.icon"
                                          :title="child.title"
                                          :value="child.value"
                                          color="primary"
                                          class="v-list-item-nested"></v-list-item>
                         </router-link>
-                    </v-list-group>
-
-                    <!-- 2. Nếu item là menu đơn (Không có children) -->
+                    </v-list-group>                    <!-- 2. Nếu item là menu đơn (Không có children) -->
                     <router-link v-else :to="item.route" custom v-slot="{ href, navigate, isActive, isExactActive }">
                         <v-list-item @click="navigate"
                                      :prepend-icon="item.icon"
                                      :title="item.title"
                                      :value="item.value"
-                                     :active="item.value === 'dashboard' ? isExactActive : isActive"
+                                     :active="item.value === 'dashboard' ? isExactActive : isNavItemActive(item)"
                                      color="primary"></v-list-item>
                     </router-link>
                 </template>

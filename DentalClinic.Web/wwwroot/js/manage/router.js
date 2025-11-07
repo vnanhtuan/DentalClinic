@@ -2,6 +2,8 @@
 import { LoginPage } from './pages/login.js';
 import { LayoutPage } from './pages/layout.js';
 import { DashboardPage } from './pages/dashboard.js';
+import { StaffPage, StaffListComponent, StaffFormPage } from './pages/staff.js';
+import { SettingsPage, RoleListComponent, RoleFormPage } from './pages/role.js';
 
 // 2. ĐỊNH NGHĨA ROUTES (Sạch sẽ)
 const routes = [
@@ -54,9 +56,39 @@ const routes = [
             },
             {
                 path: 'staff',
-                name: 'Staff',
-                component: DashboardPage, // Temporary, will be replaced later
-                meta: { breadcrumbTitle: 'Nhân sự', requiresAuth: true }
+                name: 'Staff', // Tên route cha
+                component: StaffPage, // Component cha (chỉ chứa <router-view>)
+                meta: { requiresAuth: true }, // Meta cha
+                // Các route con
+                children: [
+                    {
+                        path: '', // /manage/staff (Mặc định)
+                        name: 'StaffList',
+                        component: StaffListComponent,
+                        meta: { breadcrumbTitle: 'Danh sách Nhân sự', requiresAuth: true }
+                    },
+                    {
+                        path: 'new', // /manage/staff/new
+                        name: 'StaffCreate',
+                        component: StaffFormPage,
+                        meta: {
+                            breadcrumbTitle: 'Tạo Nhân sự Mới',
+                            requiresAuth: true,
+                            parentBreadcrumb: { name: 'StaffList', title: 'Danh sách Nhân sự' }
+                        }
+                    },
+                    {
+                        path: ':id/edit', // /manage/staff/123/edit
+                        name: 'StaffEdit',
+                        component: StaffFormPage,
+                        meta: {
+                            breadcrumbTitle: 'Chỉnh sửa Nhân sự',
+                            requiresAuth: true,
+                            parentBreadcrumb: { name: 'StaffList', title: 'Danh sách Nhân sự' }
+                        },
+                        props: true // Tự động truyền :id làm prop
+                    }
+                ]
             },
             {
                 path: 'inventory',
@@ -67,9 +99,43 @@ const routes = [
             {
                 path: 'settings',
                 name: 'Settings',
-                component: DashboardPage, // Temporary, will be replaced later
-                meta: { breadcrumbTitle: 'Cài Đặt Hệ Thống', requiresAuth: true }
+                component: SettingsPage, // Temporary, will be replaced later
+                meta: { breadcrumbTitle: 'Cài Đặt Hệ Thống', requiresAuth: true },
+                redirect: { name: 'RoleList' },
+                children: [                    {
+                        path: 'roles', // /manage/settings/roles
+                        name: 'RoleList',
+                        component: RoleListComponent,
+                        meta: { 
+                            breadcrumbTitle: 'Quản lý Vai trò', 
+                            requiresAuth: true,
+                            parentBreadcrumb: { name: 'Settings', title: 'Cài Đặt Hệ Thống' }
+                        }
+                    },
+                    {
+                        path: 'roles/new', // /manage/settings/roles/new
+                        name: 'RoleCreate',
+                        component: RoleFormPage,
+                        meta: {
+                            breadcrumbTitle: 'Tạo Vai trò Mới',
+                            requiresAuth: true,
+                            parentBreadcrumb: { name: 'RoleList', title: 'Quản lý Vai trò' }
+                        }
+                    },
+                    {
+                        path: 'roles/:id/edit', // /manage/settings/roles/123/edit
+                        name: 'RoleEdit',
+                        component: RoleFormPage,
+                        meta: {
+                            breadcrumbTitle: 'Chỉnh sửa Vai trò',
+                            requiresAuth: true,
+                            parentBreadcrumb: { name: 'RoleList', title: 'Quản lý Vai trò' }
+                        },
+                        props: true
+                    }
+                ]
             }
+            
         ]
     },
 ];

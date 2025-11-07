@@ -1,0 +1,28 @@
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace DentalClinic.Application.DTOs.Staffs
+{
+    public class StaffCreateDto
+    {
+        [Required]
+        [StringLength(100)]
+        public string FullName { get; set; } = string.Empty;
+
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; } = string.Empty;
+
+        public string? Phone { get; set; }
+
+        [Required(ErrorMessage = "Role is required")]
+        [Range(1, int.MaxValue, ErrorMessage = "Invalid")]
+        public int RoleId { get; set; }
+
+        [Required]
+        public string Username { get; set; } = string.Empty;
+
+        [Required]
+        [MinLength(6)]
+        public string Password { get; set; } = string.Empty;
+    }
+}

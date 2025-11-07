@@ -1,4 +1,4 @@
-﻿import api from '../api.js';
+﻿import api from '../../utils/api.js';
 import { handleApiError } from '../../utils/errorHandler.js';
 
 const response = await fetch('/components/manage/login.html');
@@ -28,7 +28,7 @@ export const LoginPage = {
             this.error = null;
 
             try {
-                const response = await api.post('/api/manage/auth/login', {
+                const response = await api.post('/auth/login', {
                     username: this.username,
                     password: this.password
                 });

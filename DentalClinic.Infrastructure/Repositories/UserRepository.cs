@@ -20,5 +20,29 @@ namespace DentalClinic.Infrastructure.Repositories
         {
             return !await _dbSet.AnyAsync(u => u.Email == email);
         }
+
+        public async Task<IEnumerable<User>> GetAllWithRolesAsync()
+        {
+            // Get User -> UserRoles -> UserRole
+            return await _dbSet
+                        .Include(u => u.UserRoles)
+                            .ThenInclude(ur => ur.Role)
+                        .ToListAsync();
+        }
+        public async Task<User?> GetByIdWithRolesAsync(int id)
+        {
+            return await _dbSet
+                        .Include(u => u.UserRoles)
+                            .ThenInclude(ur => ur.Role)
+                        .FirstOrDefaultAsync(u => u.UserId == id);
+        }
+        public async Task<IEnumerable<User>> GetUsersByUserTypeAsync(string userType)
+        {
+            return await _dbSet
+                        .Include(u => u.UserRoles)
+                            .ThenInclude(ur => ur.Role)
+                        .Where(u => u.UserType == userType)
+                        .ToListAsync();
+        }
     }
 }

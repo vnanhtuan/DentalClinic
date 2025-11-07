@@ -1,0 +1,14 @@
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace DentalClinic.Application.DTOs.Systems
+{
+    public class RoleCreateUpdateDto
+    {
+        [Required(ErrorMessage = "Role name is required")]
+        [StringLength(100)]
+        public string Name { get; set; } = string.Empty;
+
+        public string? Description { get; set; }
+        // (The future, add List<int> PermissionIds in here)
+    }
+}

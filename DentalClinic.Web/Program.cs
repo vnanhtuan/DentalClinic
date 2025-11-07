@@ -1,5 +1,9 @@
 using DentalClinic.Application.Interfaces;
+using DentalClinic.Application.Interfaces.Staffs;
+using DentalClinic.Application.Interfaces.Systems;
 using DentalClinic.Application.Services;
+using DentalClinic.Application.Services.Staffs;
+using DentalClinic.Application.Services.Systems;
 using DentalClinic.Domain.Interfaces;
 using DentalClinic.Infrastructure;
 using DentalClinic.Infrastructure.Repositories;
@@ -18,6 +22,8 @@ builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 // Services
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserManagementService, UserManagementService>();
+builder.Services.AddScoped<IStaffService, StaffService>();
+builder.Services.AddScoped<IRoleService, RoleService>();
 
 // Security
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();

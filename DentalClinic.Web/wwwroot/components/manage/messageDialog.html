@@ -1,0 +1,48 @@
+<v-dialog v-model="show" max-width="500px" persistent>
+    <v-card rounded="lg" elevation="8">
+        <!-- Dialog Header -->
+        <v-card-title class="d-flex align-center pa-4" :class="headerColorClass">
+            <v-icon :icon="dialogIcon" size="24" class="me-3"></v-icon>
+            <span class="text-h6 font-weight-bold">{{ dialogTitle }}</span>
+            <v-spacer></v-spacer>
+            <v-btn 
+                v-if="showCloseButton" 
+                icon="mdi-close" 
+                variant="text" 
+                size="small" 
+                @click="handleClose"
+                :class="headerTextClass">
+            </v-btn>
+        </v-card-title>
+
+        <!-- Dialog Content -->
+        <v-card-text class="pa-6">
+            <div class="text-body-1" v-html="dialogMessage"></div>
+        </v-card-text>
+
+        <!-- Dialog Actions -->
+        <v-card-actions class="pa-4 pt-0">
+            <v-spacer></v-spacer>
+            
+            <!-- Cancel Button -->
+            <v-btn 
+                v-if="showCancelButton"
+                variant="outlined" 
+                @click="handleCancel"
+                :disabled="loading"
+                class="me-2">
+                {{ cancelText }}
+            </v-btn>
+            
+            <!-- OK Button -->
+            <v-btn 
+                :color="buttonColor"
+                variant="elevated"
+                @click="handleOk"
+                :loading="loading"
+                :disabled="loading">
+                {{ okText }}
+            </v-btn>
+        </v-card-actions>
+    </v-card>
+</v-dialog>
