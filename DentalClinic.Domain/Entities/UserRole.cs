@@ -8,6 +8,7 @@ namespace DentalClinic.Domain.Entities
         public int RoleId { get; set; }
         public string RoleName { get; set; } = null!;
         public string? Description { get; set; }
+        public string? Color { get; set; }
 
         public ICollection<UserRoleMapping>? UserMappings { get; set; }
         public ICollection<RolePermission>? RolePermissions { get; set; }
