@@ -1,4 +1,5 @@
 ﻿using DentalClinic.Application.DTOs.Staffs;
+using DentalClinic.Application.DTOs.Systems;
 using DentalClinic.Application.Interfaces;
 using DentalClinic.Application.Interfaces.Staffs;
 using DentalClinic.Domain.Common;
@@ -34,10 +35,16 @@ namespace DentalClinic.Application.Services.Staffs
                         FullName = user.FullName,
                         Email = user.Email,
                         Phone = user.Phone,
-                        RoleId = primaryRoleMapping?.RoleId,
-                        RoleName = user.UserRoles?.FirstOrDefault()?.Role.RoleName ?? "N/A",
+                        RoleName = primaryRoleMapping?.Role.RoleName ?? "N/A",
+                        RoleColor = primaryRoleMapping?.Role.Color ?? "",
                         Username = user.Username,
-                        CreatedAt = user.CreatedAt
+                        CreatedAt = user.CreatedAt,
+                        Roles = user.UserRoles?.Select(ur => new RoleDto
+                        {
+                            RoleId = ur.RoleId,
+                            Name = ur.Role.RoleName,
+                            Color = ur.Role.Color
+                        }).ToList() ?? []
                     };
                 });
         }
@@ -60,8 +67,12 @@ namespace DentalClinic.Application.Services.Staffs
                 Phone = user.Phone,
                 Username = user.Username,
                 CreatedAt = user.CreatedAt,
-                RoleId = primaryRoleMapping?.RoleId,
-                RoleName = string.Join(", ", user.UserRoles?.Select(ur => ur.Role.RoleName) ?? Enumerable.Empty<string>())
+                Roles = user.UserRoles?.Select(ur => new RoleDto
+                {
+                    RoleId = ur.RoleId,
+                    Name = ur.Role.RoleName,
+                    Color = ur.Role.Color
+                }).ToList() ?? new List<RoleDto>()
             };
         }
 
@@ -72,27 +83,25 @@ namespace DentalClinic.Application.Services.Staffs
             if (await _userRepository.IsEmailUniqueAsync(dto.Email) == false)
                 throw new Exception("Email đã tồn tại.");
 
-            var role = await _roleRepository.GetByIdAsync(dto.RoleId);
-            if (role == null)
-                throw new KeyNotFoundException($"RoleId '{dto.RoleId}' not existing.");
+            await ValidateRoleIds(dto.RoleIds);
 
             // Create User Entity
             var user = new User
             {
                 FullName = dto.FullName,
                 Email = dto.Email,
-                Phone = dto.Phone,
-                // Bỏ Role cũ (chỉ để lại tạm thời cho Migration)
+                Phone = dto.Phone ?? "",
                 UserType = UserTypeCodes.Staff.ToString(),
                 Username = dto.Username,
                 PasswordHash = _passwordHasher.HashPassword(dto.Password),
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                UserRoles = []
             };
 
-            user.UserRoles = new List<UserRoleMapping>
+            foreach (var roleId in dto.RoleIds.Distinct())
             {
-                new UserRoleMapping { RoleId = role.RoleId }
-            };
+                user.UserRoles.Add(new UserRoleMapping { RoleId = roleId });
+            }
 
             await _userRepository.AddAsync(user);
             await _userRepository.SaveChangesAsync();
@@ -107,26 +116,13 @@ namespace DentalClinic.Application.Services.Staffs
             if (user == null || user.UserType != UserTypeCodes.Staff.ToString())
                 throw new KeyNotFoundException("Not Found.");
 
+            await ValidateRoleIds(dto.RoleIds);
+
             user.FullName = dto.FullName;
             user.Email = dto.Email;
-            user.Phone = dto.Phone;
+            user.Phone = dto.Phone ?? "";
 
-            var existingMapping = user.UserRoles?.FirstOrDefault();
-            var newRole = await _roleRepository.GetByIdAsync(dto.RoleId);
-            if (newRole == null)
-                throw new KeyNotFoundException($"RoleId '{dto.RoleId}' not existing.");
-
-            if (existingMapping != null)
-            {
-                existingMapping.RoleId = newRole.RoleId;
-            }
-            else
-            {
-                user.UserRoles = new List<UserRoleMapping>
-                {
-                    new UserRoleMapping { RoleId = newRole.RoleId }
-                };
-            }
+            SyncUserRoles(user, dto.RoleIds);
 
             _userRepository.Update(user);
             await _userRepository.SaveChangesAsync();
@@ -143,5 +139,51 @@ namespace DentalClinic.Application.Services.Staffs
             await _userRepository.SaveChangesAsync();
         }
 
+        private async Task ValidateRoleIds(List<int> roleIds)
+        {
+            if (roleIds == null || !roleIds.Any())
+            {
+                return;
+            }
+
+            var distinctRoleIds = roleIds.Distinct().ToList();
+            var roles = await _roleRepository.GetAllAsync();
+            var foundRoles = roles.Where(r => distinctRoleIds.Contains(r.RoleId)).ToList();
+
+            if (foundRoles.Count != distinctRoleIds.Count)
+            {
+                var missingIds = distinctRoleIds.Except(foundRoles.Select(r => r.RoleId));
+                throw new KeyNotFoundException($"Not found RoleId: {string.Join(", ", missingIds)}");
+            }
+        }
+
+        private void SyncUserRoles(User user, List<int> newRoleIds)
+        {
+            var distinctNewRoleIds = newRoleIds.Distinct().ToList();
+            
+            user.UserRoles ??= [];
+
+            // 1. Get all RoleIds existing
+            var existingRoleIds = user.UserRoles.Select(m => m.RoleId).ToList() ?? [];
+
+            // 2. Find RoleId add new
+            var rolesToAddIds = distinctNewRoleIds.Except(existingRoleIds).ToList();
+
+            // 3. Find RoleMapping to remove
+            var rolesToRemoveIds = existingRoleIds.Except(distinctNewRoleIds).ToList();
+            var mappingsToRemove = user.UserRoles
+                                      .Where(m => rolesToRemoveIds.Contains(m.RoleId))
+                                      .ToList() ?? [];
+
+            foreach (var mapping in mappingsToRemove)
+            {
+                user.UserRoles.Remove(mapping);
+            }
+
+            foreach (var roleId in rolesToAddIds)
+            {
+                user.UserRoles.Add(new UserRoleMapping { RoleId = roleId, UserId = user.UserId });
+            }
+        }
     }
 }

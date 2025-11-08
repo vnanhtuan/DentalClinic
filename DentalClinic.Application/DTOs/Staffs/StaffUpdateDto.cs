@@ -14,8 +14,6 @@ namespace DentalClinic.Application.DTOs.Staffs
 
         public string? Phone { get; set; }
 
-        [Required(ErrorMessage = "Role is required")]
-        [Range(1, int.MaxValue, ErrorMessage = "Invalid")]
-        public int RoleId { get; set; }
+        public List<int> RoleIds { get; set; } = new List<int>();
     }
 }

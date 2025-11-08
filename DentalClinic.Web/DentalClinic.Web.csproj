@@ -19,7 +19,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\js\manage\utils\" />
     <Folder Include="wwwroot\lib\vuetify\" />
   </ItemGroup>
 

@@ -24,6 +24,7 @@ namespace DentalClinic.Application.Services.Systems
                 {
                     RoleId = role.RoleId,
                     Name = role.RoleName,
+                    Color = role.Color,
                     Description = role.Description,
                 });
         }
@@ -36,6 +37,7 @@ namespace DentalClinic.Application.Services.Systems
             {
                 RoleId = role.RoleId,
                 Name = role.RoleName,
+                Color = role.Color,
                 Description = role.Description,
             };
         }
@@ -48,6 +50,7 @@ namespace DentalClinic.Application.Services.Systems
             var role = new UserRole
             {
                 RoleName = dto.Name,
+                Color = dto.Color,
                 Description = dto.Description,
             };
 
@@ -67,6 +70,7 @@ namespace DentalClinic.Application.Services.Systems
                 throw new Exception("RoleName is existing.");
 
             role.RoleName = dto.Name;
+            role.Color = dto.Color;
             role.Description = dto.Description;
 
             _roleRepository.Update(role);

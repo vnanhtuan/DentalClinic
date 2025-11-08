@@ -20,13 +20,15 @@
                 </v-col>
                 <v-col cols="12" md="6">
                     <v-select label="Chức danh/Vai trò"
-                              v-model="staff.roleId"
+                              v-model="staff.roleIds"
                               :items="roles"
-                              item-title="roleName"
+                              item-title="name"
                               item-value="roleId"
                               variant="outlined"
                               required
-                              :rules="[rules.requiredRole]"
+                              multiple
+                              chips
+                              :rules="[rules.requiredRoles]"
                               placeholder="Chọn một vai trò"
                               class="mb-4">
                     </v-select>

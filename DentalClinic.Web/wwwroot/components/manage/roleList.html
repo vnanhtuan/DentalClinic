@@ -9,7 +9,6 @@
     </v-card-title>
 
     <v-card-text class="pa-0 pa-sm-4">
-        <!-- Loading State -->
         <v-skeleton-loader v-if="loading" type="table" class="mx-auto"></v-skeleton-loader>
 
         <!-- Data Table (Desktop và Mobile dùng chung vì ít cột) -->
@@ -24,6 +23,11 @@
                           :items-per-page="10"
                           density="comfortable">
 
+                <template v-slot:item.name="{ item }">
+                    <v-chip :color="item.color" size="small">
+                        {{ item.name }}
+                    </v-chip>
+                </template>
                 <!-- Cột Hành động (Edit/Delete) -->
                 <template v-slot:item.actions="{ item }">
                     <div class="d-flex ga-1 justify-end">

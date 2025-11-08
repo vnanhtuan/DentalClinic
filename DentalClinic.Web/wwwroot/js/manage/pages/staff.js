@@ -55,7 +55,7 @@ export const StaffListComponent = {
             const query = this.searchQuery.toLowerCase();
             return this.staffs.filter(staff =>
                 staff.fullName.toLowerCase().includes(query) ||
-                staff.roleName.toLowerCase().includes(query) ||
+                (staff.roles && staff.roles.some(r => r.roleName.toLowerCase().includes(query))) ||
                 (staff.email && staff.email.toLowerCase().includes(query)) ||
                 (staff.phone && staff.phone.toLowerCase().includes(query))
             );
@@ -113,12 +113,6 @@ export const StaffListComponent = {
                     'Lỗi xóa dữ liệu'
                 );
             }
-        }, 
-        getRoleColor(roleName) {
-            if (roleName.includes('Bác sĩ')) return 'blue-darken-1';
-            if (roleName.includes('Admin')) return 'red-darken-1';
-            if (roleName.includes('Lễ tân')) return 'green-darken-1';
-            return 'grey';
         }
     },
     mounted() {
@@ -140,7 +134,7 @@ export const StaffFormPage = {
             error: null,
             rules: {
                 required: v => !!v || 'Thông tin bắt buộc.',
-                requiredRole: v => (v !== null && v > 0) || 'Vai trò là bắt buộc.',
+                requiredRoles: v => (v && v.length > 0) || 'Phải chọn ít nhất một vai trò.',
                 email: v => /.+@.+\..+/.test(v) || 'Email không hợp lệ.',
                 minLength: v => (v && v.length >= 6) || 'Mật khẩu phải ít nhất 6 ký tự.',
             },
@@ -182,7 +176,7 @@ export const StaffFormPage = {
                     fullName: data.fullName,
                     email: data.email,
                     phone: data.phone,
-                    roleId: data.roleId,
+                    roleIds: data.roles.map(r => r.roleId),
                     username: data.username
                 };
             } catch (err) {
@@ -208,7 +202,7 @@ export const StaffFormPage = {
                         fullName: this.staff.fullName,
                         email: this.staff.email,
                         phone: this.staff.phone,
-                        roleId: this.staff.roleId,
+                        roleIds: this.staff.roleIds,
                     };
                     await staffApi.update(this.staffId, updateDto);
                     this.showSuccessDialog(

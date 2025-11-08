@@ -4,13 +4,22 @@
     <v-card-text>
         <v-form @submit.prevent="saveRole" ref="roleForm">
             <v-row>
-                <v-col cols="12">
-                    <v-text-field label="Tên Vai Trò (RoleName)"
+                <v-col cols="12" md="8">
+                    <v-text-field label="Tên vai trò (RoleName)"
                                   v-model="role.name"
                                   variant="outlined"
                                   required
                                   :rules="[rules.required]"
                                   hint="Ví dụ: Admin, Doctor, Receptionist"
+                                  persistent-hint
+                                  class="mb-4">
+                    </v-text-field>
+                </v-col>
+                <v-col cols="12" md="4">
+                    <v-text-field label="Màu sắc"
+                                  v-model="role.color"
+                                  variant="outlined"
+                                  hint="Ví dụ: #2f362f, #f8faf9"
                                   persistent-hint
                                   class="mb-4">
                     </v-text-field>

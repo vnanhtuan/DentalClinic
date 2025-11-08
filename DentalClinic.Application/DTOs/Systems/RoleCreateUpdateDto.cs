@@ -9,6 +9,7 @@ namespace DentalClinic.Application.DTOs.Systems
         public string Name { get; set; } = string.Empty;
 
         public string? Description { get; set; }
+        public string? Color { get; set; }
         // (The future, add List<int> PermissionIds in here)
     }
 }

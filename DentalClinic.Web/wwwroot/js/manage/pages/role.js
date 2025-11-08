@@ -96,7 +96,8 @@ export const RoleFormPage = {
             roleId: this.$route.params.id || null,
             role: {
                 name: '',
-                description: ''
+                description: '',
+                color: ''
             },
             error: null,
             rules: {
