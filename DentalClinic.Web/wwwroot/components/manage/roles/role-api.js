@@ -1,5 +1,5 @@
-﻿import api from '../../utils/api.js';
-import { handleApiError } from '../../utils/errorHandler.js';
+﻿import api from '../../../js/utils/api.js';
+import { handleApiError } from '../../../js/utils/errorHandler.js';
 
 const API_URL = '/role';
 

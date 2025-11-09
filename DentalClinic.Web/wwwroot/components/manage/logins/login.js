@@ -1,7 +1,8 @@
-﻿import api from '../../utils/api.js';
-import { handleApiError } from '../../utils/errorHandler.js';
+﻿import api from '../../../js/utils/api.js';
+import { handleApiError } from '../../../js/utils/errorHandler.js';
+import { userService } from '../../../js/manage/services/user-service.js';
 
-const response = await fetch('/components/manage/login.html');
+const response = await fetch('/components/manage/logins/login.html');
 const templateHtml = await response.text();
 
 export const LoginPage = {
@@ -15,12 +16,12 @@ export const LoginPage = {
             loading: false,
             error: null,
             rules: {
-                required: value => !!value || 'This field is required.'
-            }
+                required: value => !!value || 'This field is required.'            }
         };
     },
-    methods: {
-        async handleLogin() {
+    mounted() {
+    },
+    methods: {async handleLogin() {
             const { valid } = await this.$refs.loginForm.validate();
             if (!valid) return;
 
@@ -32,7 +33,10 @@ export const LoginPage = {
                     username: this.username,
                     password: this.password
                 });
-                localStorage.setItem('manage-token', response.data.token);
+
+                // Store user information using the service
+                userService.setUser(response.data);
+
                 this.$router.push({ name: 'Dashboard' });
             } catch (err) {
                 this.error = handleApiError(err);

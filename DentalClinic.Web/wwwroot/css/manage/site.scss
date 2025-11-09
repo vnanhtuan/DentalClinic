@@ -319,7 +319,64 @@ a.text-primary {
         opacity: 1; // Keep buttons visible but controlled via disabled state
     }
 }
+
+.dialog-form {
+    .v-card-title {
+        background-color: #C8E6C9;
+    }
+    .v-card-actions {
+        button[type="submit"] {
+            background-color: #81C784 !important;
+            color: white !important;
+        }
+    }
+}
 // ----------------------------------------------------
 // END MESSAGE DIALOG LOADING STATES
+// ----------------------------------------------------
+
+// ----------------------------------------------------
+// USER AVATAR AND MENU STYLES
+// ----------------------------------------------------
+.v-app-bar .v-avatar {
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    transition: border-color 0.2s ease;
+    
+    &:hover {
+        border-color: rgba(255, 255, 255, 0.6);
+    }
+}
+
+.v-app-bar .user-info {
+    .v-chip {
+        opacity: 0.9;
+        
+        .v-chip__content {
+            font-weight: 500;
+        }
+    }
+}
+
+// User menu list styling
+.v-list-item--user-info {
+    .v-list-item-title {
+        .font-weight-bold {
+            color: rgb(var(--v-theme-primary));
+        }
+        
+        .text-caption {
+            opacity: 0.8;
+        }
+    }
+}
+
+// Responsive user info
+@media (max-width: 960px) {
+    .v-app-bar .user-info {
+        display: none;
+    }
+}
+// ----------------------------------------------------
+// END USER AVATAR AND MENU STYLES
 // ----------------------------------------------------
 

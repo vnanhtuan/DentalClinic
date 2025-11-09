@@ -1,10 +1,10 @@
-﻿import { staffApi } from '../services/staff-api.js';
-import { roleApi } from '../services/role-api.js';
+﻿import { staffApi } from './staff-api.js';
+import { roleApi } from '../roles/role-api.js';
 
-const staffListResponse = await fetch('/components/manage/staffList.html');
+const staffListResponse = await fetch('/components/manage/staffs/staffList.html');
 const staffListHtml = await staffListResponse.text();
 
-const staffFormResponse = await fetch('/components/manage/staffForm.html');
+const staffFormResponse = await fetch('/components/manage/staffs/staffForm.html');
 const staffFormHtml = await staffFormResponse.text();
 
 export const StaffPage = {
@@ -91,11 +91,11 @@ export const StaffListComponent = {
         },
         goToEdit(id) {
             this.$router.push({ name: 'StaffEdit', params: { id: id } });
-        }, 
+        },
         confirmDelete(item) {
             this.selectedItem = item;
             this.showDeleteConfirmDialog(item.fullName, this.executeDelete);
-        }, 
+        },
         async executeDelete() {
             this.setDialogLoading(true);
             try {
@@ -224,7 +224,7 @@ export const StaffFormPage = {
             } finally {
                 this.loading = false;
             }
-        }, 
+        },
         goBack() {
             this.$router.push({ name: 'StaffList' });
         }

@@ -1,7 +1,8 @@
-﻿import { GlobalNavItems } from '../constants/nav-items.js';
-import { MessageDialogComponent } from '../components/messageDialog.js';
+﻿import { GlobalNavItems } from '../../../js/manage/constants/nav-items.js';
+import { MessageDialogComponent } from '../../../js/manage/components/messageDialog.js';
+import { userService } from '../../../js/manage/services/user-service.js';
 
-const response = await fetch('/components/manage/layout.html');
+const response = await fetch('/components/manage/layouts/layout.html');
 const templateHtml = await response.text();
 
 export const LayoutPage = {
@@ -24,7 +25,20 @@ export const LayoutPage = {
         isMobile() {
             // Dùng 'smAndDown' để bắt mobile và tablet (<= 960px)
             return this.$vuetify.display.smAndDown;
-        }, breadcrumbs() {
+        },
+        currentUser() {
+            return userService.getCurrentUser();
+        },
+        userInitials() {
+            return userService.generateAvatar(this.currentUser?.fullName || '');
+        },
+        userAvatarColor() {
+            return userService.getAvatarColor(this.currentUser?.fullName || '');
+        },
+        roleInfo() {
+            return userService.getRoleInfo(this.currentUser?.role || '');
+        },
+        breadcrumbs() {
             const breadcrumbItems = [];
             const currentRoute = this.$route;
 
@@ -52,11 +66,12 @@ export const LayoutPage = {
                 }
             },
             immediate: true
-        },        $route: {
+        },
+        $route: {
             handler() {
                 // Find which navigation group should be open based on current route
                 const routeName = this.$route.name;
-                
+
                 // Helper function to find the route and its parent group recursively
                 const findRouteInNavItems = (currentRouteName) => {
                     // First, try to find the route directly in navigation
@@ -77,15 +92,15 @@ export const LayoutPage = {
 
                 // Try to find the current route
                 let result = findRouteInNavItems(routeName);
-                
+
                 // If not found, try to find through parent breadcrumb chain
                 if (!result && this.$route.meta && this.$route.meta.parentBreadcrumb) {
                     let parentRouteName = this.$route.meta.parentBreadcrumb.name;
-                    
+
                     // Keep going up the chain until we find a route in navigation
                     while (parentRouteName && !result) {
                         result = findRouteInNavItems(parentRouteName);
-                        
+
                         if (!result) {
                             // Find the parent route config to get its parent breadcrumb
                             const findRoute = (routes, targetName) => {
@@ -98,7 +113,7 @@ export const LayoutPage = {
                                 }
                                 return null;
                             };
-                            
+
                             const parentRouteConfig = findRoute(this.$router.options.routes, parentRouteName);
                             parentRouteName = parentRouteConfig?.meta?.parentBreadcrumb?.name;
                         }
@@ -116,29 +131,39 @@ export const LayoutPage = {
         }
     },
     methods: {
+        onToggle(item) {
+            if (this.rail) {
+                this.rail = false;
+            }
+        },
+
+        // Helper method to find navigation item by value
+        findNavItemByValue(value) {
+            return this.navItems.find(item => item.value === value);
+        },
         // Check if a navigation item should be active based on current route and its hierarchy
         isNavItemActive(navItem) {
             const currentRoute = this.$route;
-            
+
             // Direct match
             if (navItem.route && navItem.route.name === currentRoute.name) {
                 return true;
             }
-            
+
             // Check if current route is a child of this nav item through breadcrumb chain
             if (this.isChildOfNavRoute(currentRoute.name, navItem.route.name)) {
                 return true;
             }
-            
+
             return false;
         },
-        
+
         // Check if current route is a descendant of the target route
         isChildOfNavRoute(currentRouteName, targetRouteName) {
             // Build the parent chain for current route
             const buildParentChain = (routeName) => {
                 const chain = [routeName];
-                
+
                 const findRoute = (routes, targetName) => {
                     for (const r of routes) {
                         if (r.name === targetName) return r;
@@ -149,17 +174,17 @@ export const LayoutPage = {
                     }
                     return null;
                 };
-                
+
                 let currentRoute = findRoute(this.$router.options.routes, routeName);
                 while (currentRoute?.meta?.parentBreadcrumb) {
                     const parentName = currentRoute.meta.parentBreadcrumb.name;
                     chain.push(parentName);
                     currentRoute = findRoute(this.$router.options.routes, parentName);
                 }
-                
+
                 return chain;
             };
-            
+
             const parentChain = buildParentChain(currentRouteName);
             return parentChain.includes(targetRouteName);
         },
@@ -218,8 +243,28 @@ export const LayoutPage = {
         },
 
         handleLogout() {
+            // Clear user data using the service
+            userService.logout();
+            // Also clear any legacy tokens
             localStorage.removeItem('manage-token');
             this.$router.push({ name: 'Login' });
+        },
+
+        // User menu actions
+        showProfile() {
+            this.showInfoDialog(
+                `<strong>Họ tên:</strong> ${this.currentUser?.fullName}<br/>
+                 <strong>Vai trò:</strong> ${this.roleInfo.displayName}<br/>
+                 <strong>Đăng nhập lúc:</strong> ${new Date(this.currentUser?.loginTime).toLocaleString('vi-VN')}`,
+                'Thông tin cá nhân'
+            );
+        },
+
+        showSettings() {
+            this.showInfoDialog(
+                'Tính năng cài đặt đang được phát triển.<br/>Vui lòng quay lại sau.',
+                'Cài đặt'
+            );
         },
 
         // Hàm này xử lý mobile (ẩn/hiện menu)

@@ -10,26 +10,16 @@
     <v-card-text class="pa-0 pa-sm-4">
         <!-- Loading State -->
         <v-skeleton-loader v-if="loading" type="table" class="mx-auto"></v-skeleton-loader>
-        
+
         <!-- Desktop: Data Table -->
         <div v-else-if="!isMobile">
-            <v-data-table :headers="headers"
-                          :items="staffs"
-                          item-value="id"
-                          class="elevation-1"
-                          :loading="loading"
-                          loading-text="Đang tải dữ liệu..."
-                          no-data-text="Không tìm thấy nhân sự"
-                          :items-per-page="10"
-                          :items-per-page-options="[5, 10, 25, 50]"
-                          density="comfortable">
+            <v-data-table :headers="headers" :items="staffs" item-value="id" class="elevation-1" :loading="loading"
+                loading-text="Đang tải dữ liệu..." no-data-text="Không tìm thấy nhân sự" :items-per-page="10"
+                :items-per-page-options="[5, 10, 25, 50]" density="comfortable">
 
                 <template v-slot:item.role="{ item }">
                     <div class="d-flex flex-wrap ga-1 py-1">
-                        <v-chip v-for="role in item.roles"
-                                :key="role.roleId"
-                                :color="role.color"
-                                size="small">
+                        <v-chip v-for="role in item.roles" :key="role.roleId" :color="role.color" size="small">
                             {{ role.name }}
                         </v-chip>
                     </div>
@@ -40,12 +30,14 @@
                     <div class="d-flex ga-1 justify-end">
                         <v-tooltip location="top" text="Chỉnh sửa">
                             <template v-slot:activator="{ props }">
-                                <v-btn v-bind="props" icon="mdi-pencil" variant="text" color="info" size="small" @click="goToEdit(item.id)"></v-btn>
+                                <v-btn v-bind="props" icon="mdi-pencil" variant="text" color="info" size="small"
+                                    @click="goToEdit(item.id)"></v-btn>
                             </template>
                         </v-tooltip>
                         <v-tooltip location="top" text="Xóa">
                             <template v-slot:activator="{ props }">
-                                <v-btn v-bind="props" icon="mdi-delete" variant="text" color="error" size="small" @click="confirmDelete(item)"></v-btn>
+                                <v-btn v-bind="props" icon="mdi-delete" variant="text" color="error" size="small"
+                                    @click="confirmDelete(item)"></v-btn>
                             </template>
                         </v-tooltip>
                     </div>
@@ -56,49 +48,32 @@
         <!-- Mobile: Card Layout -->
         <div v-else>
             <!-- Search bar for mobile -->
-            <v-text-field v-model="searchQuery"
-                          label="Tìm kiếm nhân sự..."
-                          prepend-inner-icon="mdi-magnify"
-                          variant="outlined"
-                          density="compact"
-                          class="mb-4"
-                          hide-details
-                          clearable></v-text-field>
+            <v-text-field v-model="searchQuery" label="Tìm kiếm nhân sự..." prepend-inner-icon="mdi-magnify"
+                variant="outlined" density="compact" class="mb-4" hide-details clearable></v-text-field>
 
             <!-- Staff Cards -->
             <div v-if="filteredStaffs.length > 0" class="staff-cards-container">
-                <v-card v-for="staff in paginatedStaffs" 
-                        :key="staff.id"
-                        class="mb-3 staff-card"
-                        elevation="2"
-                        rounded="lg">
+                <v-card v-for="staff in paginatedStaffs" :key="staff.id" class="mb-3 staff-card" elevation="2"
+                    rounded="lg">
                     <v-card-text class="pa-4">
                         <div class="d-flex justify-space-between align-start mb-3">
                             <div class="flex-grow-1">
                                 <h3 class="text-h6 font-weight-bold mb-1">{{ staff.fullName }}</h3>
                                 <div class="d-flex flex-wrap ga-1 mb-2">
-                                    <v-chip v-for="role in staff.roles"
-                                            :key="role.roleId"
-                                            :color="role.color"
-                                            size="small">
+                                    <v-chip v-for="role in staff.roles" :key="role.roleId" :color="role.color"
+                                        size="small">
                                         {{ role.roleName }}
                                     </v-chip>
                                 </div>
                             </div>
                             <div class="d-flex ga-1 ml-2">
-                                <v-btn icon="mdi-pencil" 
-                                       variant="text" 
-                                       color="info" 
-                                       size="small" 
-                                       @click="goToEdit(staff.id)"></v-btn>
-                                <v-btn icon="mdi-delete" 
-                                       variant="text" 
-                                       color="error" 
-                                       size="small" 
-                                       @click="confirmDelete(staff)"></v-btn>
+                                <v-btn icon="mdi-pencil" variant="text" color="info" size="small"
+                                    @click="goToEdit(staff.id)"></v-btn>
+                                <v-btn icon="mdi-delete" variant="text" color="error" size="small"
+                                    @click="confirmDelete(staff)"></v-btn>
                             </div>
                         </div>
-                        
+
                         <div class="staff-details">
                             <div v-if="staff.email" class="d-flex align-center mb-2">
                                 <v-icon icon="mdi-email" size="small" class="mr-2 text-grey-darken-1"></v-icon>
@@ -112,7 +87,7 @@
                     </v-card-text>
                 </v-card>
             </div>
-            
+
             <!-- No data message for mobile -->
             <v-card v-else elevation="1" class="text-center pa-8">
                 <v-icon icon="mdi-account-search" size="64" class="text-grey-lighten-1 mb-4"></v-icon>
@@ -122,24 +97,16 @@
 
             <!-- Mobile Pagination -->
             <div v-if="filteredStaffs.length > itemsPerPageMobile" class="d-flex justify-center mt-4">
-                <v-pagination v-model="currentPage"
-                              :length="totalPagesMobile"
-                              :total-visible="5"
-                              density="comfortable"></v-pagination>
+                <v-pagination v-model="currentPage" :length="totalPagesMobile" :total-visible="5"
+                    density="comfortable"></v-pagination>
             </div>
-        </div>    </v-card-text>
+        </div>
+    </v-card-text>
 
     <!-- Message Dialog for confirmations and notifications -->
-    <message-dialog
-        v-model="showDialog"
-        :type="dialogConfig.type"
-        :title="dialogConfig.title"
-        :message="dialogConfig.message"
-        :show-cancel="dialogConfig.showCancel"
-        :loading="dialogConfig.loading"
-        :ok-text="dialogConfig.okText"
-        :cancel-text="dialogConfig.cancelText"
-        @ok="dialogConfig.onOk"
+    <message-dialog v-model="showDialog" :type="dialogConfig.type" :title="dialogConfig.title"
+        :message="dialogConfig.message" :show-cancel="dialogConfig.showCancel" :loading="dialogConfig.loading"
+        :ok-text="dialogConfig.okText" :cancel-text="dialogConfig.cancelText" @ok="dialogConfig.onOk"
         @cancel="dialogConfig.onCancel">
     </message-dialog>
 </v-card>

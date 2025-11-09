@@ -9,7 +9,7 @@ const api = axios.create({
 // Đoạn code này sẽ chạy TRƯỚC KHI bất kỳ request nào được gửi đi
 api.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem('manage-token');
+        const token = localStorage.getItem('dental_auth_token');
 
         // 4. Nếu token tồn tại, gán nó vào header
         if (token) {
@@ -36,7 +36,7 @@ api.interceptors.response.use(
     (error) => {
         // Kiểm tra xem có lỗi 401 (Unauthorized) không
         if (error.response && error.response.status === 401) {
-            localStorage.removeItem('manage-token');
+            localStorage.removeItem('dental_auth_token');
             window.location.href = '/manage/login';
         }
 

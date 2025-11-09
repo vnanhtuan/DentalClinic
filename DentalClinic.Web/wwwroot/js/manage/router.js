@@ -1,9 +1,10 @@
 ﻿// 1. IMPORT CÁC COMPONENT TRANG (đã có đủ logic)
-import { LoginPage } from './pages/login.js';
-import { LayoutPage } from './pages/layout.js';
+import { LoginPage } from '../../components/manage/logins/login.js';
+import { LayoutPage } from '../../components/manage/layouts/layout.js';
 import { DashboardPage } from './pages/dashboard.js';
-import { StaffPage, StaffListComponent, StaffFormPage } from './pages/staff.js';
-import { SettingsPage, RoleListComponent, RoleFormPage } from './pages/role.js';
+import { StaffPage, StaffListComponent, StaffFormPage } from '../../components/manage/staffs/staff.js';
+import { SettingsPage, RoleListComponent } from '../../components/manage/roles/role.js';
+import { userService } from './services/user-service.js';
 
 // 2. ĐỊNH NGHĨA ROUTES (Sạch sẽ)
 const routes = [
@@ -102,7 +103,8 @@ const routes = [
                 component: SettingsPage, // Temporary, will be replaced later
                 meta: { breadcrumbTitle: 'Cài Đặt Hệ Thống', requiresAuth: true },
                 redirect: { name: 'RoleList' },
-                children: [                    {
+                children: [
+                    {
                         path: 'roles', // /manage/settings/roles
                         name: 'RoleList',
                         component: RoleListComponent,
@@ -111,27 +113,6 @@ const routes = [
                             requiresAuth: true,
                             parentBreadcrumb: { name: 'Settings', title: 'Cài Đặt Hệ Thống' }
                         }
-                    },
-                    {
-                        path: 'roles/new', // /manage/settings/roles/new
-                        name: 'RoleCreate',
-                        component: RoleFormPage,
-                        meta: {
-                            breadcrumbTitle: 'Tạo Vai trò Mới',
-                            requiresAuth: true,
-                            parentBreadcrumb: { name: 'RoleList', title: 'Quản lý Vai trò' }
-                        }
-                    },
-                    {
-                        path: 'roles/:id/edit', // /manage/settings/roles/123/edit
-                        name: 'RoleEdit',
-                        component: RoleFormPage,
-                        meta: {
-                            breadcrumbTitle: 'Chỉnh sửa Vai trò',
-                            requiresAuth: true,
-                            parentBreadcrumb: { name: 'RoleList', title: 'Quản lý Vai trò' }
-                        },
-                        props: true
                     }
                 ]
             }
@@ -150,17 +131,27 @@ export const router = window.VueRouter.createRouter({
 // 4. ĐỊNH NGHĨA BẢO VỆ (Navigation Guard)
 // Đây là logic *thuộc về* router, nên để ở đây là hợp lý
 router.beforeEach((to, from, next) => {
-    const isAuthenticated = localStorage.getItem('manage-token');
+    const isAuthenticated = userService.isLoggedIn();
+    
     if (to.name === 'Login') {
         if (isAuthenticated) {
+            // User is already logged in, redirect to dashboard
+            console.log('User is logged in, redirecting to Dashboard');
             next({ name: 'Dashboard' });
         } else {
+            // User is not logged in, allow access to login page
+            console.log('User not logged in, allowing access to Login');
             next();
         }
     } else {
+        // Protected route
         if (isAuthenticated) {
+            // User is authenticated, allow access
+            console.log('User authenticated, allowing access to protected route');
             next();
         } else {
+            // User is not authenticated, redirect to login
+            console.log('User not authenticated, redirecting to Login');
             next({ name: 'Login' });
         }
     }

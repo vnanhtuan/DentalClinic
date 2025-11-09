@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="wwwroot\js\manage\services\" />
     <Folder Include="wwwroot\lib\vuetify\" />
   </ItemGroup>
 
