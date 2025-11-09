@@ -136,22 +136,18 @@ router.beforeEach((to, from, next) => {
     if (to.name === 'Login') {
         if (isAuthenticated) {
             // User is already logged in, redirect to dashboard
-            console.log('User is logged in, redirecting to Dashboard');
             next({ name: 'Dashboard' });
         } else {
             // User is not logged in, allow access to login page
-            console.log('User not logged in, allowing access to Login');
             next();
         }
     } else {
         // Protected route
         if (isAuthenticated) {
             // User is authenticated, allow access
-            console.log('User authenticated, allowing access to protected route');
             next();
         } else {
             // User is not authenticated, redirect to login
-            console.log('User not authenticated, redirecting to Login');
             next({ name: 'Login' });
         }
     }
