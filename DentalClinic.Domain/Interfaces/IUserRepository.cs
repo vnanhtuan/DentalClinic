@@ -15,6 +15,7 @@ namespace DentalClinic.Domain.Interfaces
             int pageSize,
             string? searchTerm,
             string? sortBy,
-            string? sortDirection);
+            string? sortDirection,
+            List<int>? roleIds);
     }
 }

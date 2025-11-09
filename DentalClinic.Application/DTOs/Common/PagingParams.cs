@@ -15,5 +15,8 @@
         public string? SortBy { get; set; }
         public string? SortDirection { get; set; } = "asc";
         public string? SearchTerm { get; set; }
+
+        // New: filter by one or more RoleIds (model binding supports repeated query params: roleIds=1&roleIds=2)
+        public List<int>? RoleIds { get; set; }
     }
 }

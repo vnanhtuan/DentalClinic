@@ -6,8 +6,19 @@ const API_URL = '/staff';
 export const staffApi = {
     async getPaginated(params) {
         try {
-            const queryParams = new URLSearchParams(params).toString();
-            const response = await api.get(`${API_URL}/getpaginated?${queryParams}`);
+            const qp = new URLSearchParams();
+            if (params) {
+                Object.keys(params).forEach(key => {
+                    const value = params[key];
+                    if (value === undefined || value === null) return;
+                    if (Array.isArray(value)) {
+                        value.forEach(v => qp.append(key, v));
+                    } else {
+                        qp.append(key, value);
+                    }
+                });
+            }
+            const response = await api.get(`${API_URL}/getpaginated?${qp.toString()}`);
             return response.data;
         } catch (error) {
             console.error('Staff API error:', error);

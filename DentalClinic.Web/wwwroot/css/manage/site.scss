@@ -7,6 +7,8 @@ $background-light: #f7f9fc; // Nền sáng cho cột trái
 $text-dark: #333;
 $text-light-grey: #666;
 
+$btn-seconday:#ffb300;
+
 // ----------------------------------------------------
 // GLOBAL UTILITY CLASSES
 // ----------------------------------------------------
@@ -16,8 +18,9 @@ $text-light-grey: #666;
 }
 
 .btn-secondary {
-    background-color: $text-light-grey !important;
-    color: white !important;
+    background-color: $btn-seconday !important;
+    color: white;
+    font-weight: bold
 }
 
 .btn-light {

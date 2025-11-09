@@ -18,11 +18,12 @@ namespace DentalClinic.Infrastructure.Repositories
             int pageSize,
             string? searchTerm,
             string? sortBy,
-            string? sortDirection)
+            string? sortDirection,
+            List<int>? roleIds)
         {
             var query = _dbSet
-                .Include(u => u.UserRoles)
-                    .ThenInclude(ur => ur.Role)
+                .Include(u => u.UserRoles!)
+                    .ThenInclude(ur => ur.Role!)
                 .Where(u => u.UserType == UserTypeCodes.Staff.ToString())
                 .AsNoTracking();
 
@@ -30,11 +31,16 @@ namespace DentalClinic.Infrastructure.Repositories
             {
                 var term = searchTerm.ToLower();
                 query = query.Where(u =>
-                    u.FullName.Contains(term) ||
-                    u.Email.Contains(term) ||
-                    (u.Phone != null && u.Phone.Contains(term)) ||
-                    (u.UserRoles != null && u.UserRoles.Any(ur => ur.Role.RoleName.Contains(term)))
+                    (u.FullName != null && u.FullName.ToLower().Contains(term)) ||
+                    (u.Email != null && u.Email.ToLower().Contains(term)) ||
+                    (u.Phone != null && u.Phone.ToLower().Contains(term)) ||
+                    (u.UserRoles != null && u.UserRoles.Any(ur => ur.Role != null && ur.Role.RoleName.ToLower().Contains(term)))
                 );
+            }
+
+            if (roleIds != null && roleIds.Any())
+            {
+                query = query.Where(u => u.UserRoles != null && u.UserRoles.Any(ur => roleIds.Contains(ur.RoleId)));
             }
 
             if (!string.IsNullOrEmpty(sortBy))
@@ -64,30 +70,12 @@ namespace DentalClinic.Infrastructure.Repositories
 
             return (users, totalCount);
         }
-        private static string RemoveDiacritics(string text)
-        {
-            if (string.IsNullOrWhiteSpace(text)) return string.Empty;
-
-            var normalizedString = text.Normalize(NormalizationForm.FormD);
-            var stringBuilder = new StringBuilder();
-
-            foreach (var c in normalizedString)
-            {
-                var unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
-                if (unicodeCategory != UnicodeCategory.NonSpacingMark)
-                {
-                    stringBuilder.Append(c);
-                }
-            }
-
-            return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
-        }
 
         public async Task<User?> LoginByUsernameAsync(string username)
         {
             return await _dbSet.AsNoTracking()
-                .Include(m => m.UserRoles)
-                    .ThenInclude(ur => ur.Role)
+                .Include(m => m.UserRoles!)
+                    .ThenInclude(ur => ur.Role!)
                 .FirstOrDefaultAsync(u => u.Username == username);
         }
 
@@ -106,22 +94,22 @@ namespace DentalClinic.Infrastructure.Repositories
         {
             // Get User -> UserRoles -> UserRole
             return await _dbSet
-                        .Include(u => u.UserRoles)
-                            .ThenInclude(ur => ur.Role)
+                        .Include(u => u.UserRoles!)
+                            .ThenInclude(ur => ur.Role!)
                         .ToListAsync();
         }
         public async Task<User?> GetByIdWithRolesAsync(int id)
         {
             return await _dbSet
-                        .Include(u => u.UserRoles)
-                            .ThenInclude(ur => ur.Role)
+                        .Include(u => u.UserRoles!)
+                            .ThenInclude(ur => ur.Role!)
                         .FirstOrDefaultAsync(u => u.UserId == id);
         }
         public async Task<IEnumerable<User>> GetUsersByUserTypeAsync(string userType)
         {
             return await _dbSet
-                        .Include(u => u.UserRoles)
-                            .ThenInclude(ur => ur.Role)
+                        .Include(u => u.UserRoles!)
+                            .ThenInclude(ur => ur.Role!)
                         .Where(u => u.UserType == userType)
                         .ToListAsync();
         }

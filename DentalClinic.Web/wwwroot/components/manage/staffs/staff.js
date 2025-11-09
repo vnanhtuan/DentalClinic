@@ -34,6 +34,10 @@ export const StaffListComponent = {
             pageSizeOptions: PAGE_SIZE_OPTIONS,
             searchTimeout: null,
 
+            // Role filter
+            roles: [],
+            selectedRoleIds: [],
+
             // Item being processed
             selectedItem: null
         };
@@ -41,6 +45,17 @@ export const StaffListComponent = {
     computed: {
         isMobile() {
             return this.$vuetify.display.smAndDown;
+        },
+        // Calculate 1-based range of displayed items for UI: fromItem..toItem
+        fromItem() {
+            // If no items on current page, show 0
+            if (!this.staffs || this.staffs.length === 0) return 0;
+            return (this.currentPage - 1) * this.pageSize + 1;
+        },
+        toItem() {
+            if (!this.staffs || this.staffs.length === 0) return 0;
+            // Use staffs.length so it still works if totalItems isn't provided
+            return (this.currentPage - 1) * this.pageSize + this.staffs.length;
         }
     }, 
     watch: {
@@ -48,6 +63,11 @@ export const StaffListComponent = {
             this.fetchStaffs();
         },
         pageSize() {
+            this.currentPage = 1;
+            this.fetchStaffs();
+        },
+        selectedRoleIds() {
+            // Reset to first page when role filter changes
             this.currentPage = 1;
             this.fetchStaffs();
         },
@@ -61,6 +81,13 @@ export const StaffListComponent = {
         }
     },
     methods: {
+        async fetchRoles() {
+            try {
+                this.roles = await staffApi.initForm();
+            } catch (err) {
+                this.showErrorDialog('Không thể tải danh sách vai trò.', 'Lỗi tải dữ liệu');
+            }
+        },
         async fetchStaffs() {
             this.loading = true;
             try {
@@ -69,6 +96,10 @@ export const StaffListComponent = {
                     pageSize: this.pageSize,
                     searchTerm: this.searchQuery || ''
                 };
+                if (this.selectedRoleIds && this.selectedRoleIds.length > 0) {
+                    // send as array so staffApi will encode roleIds=1&roleIds=2
+                    params.roleIds = this.selectedRoleIds.slice();
+                }
                 const response = await staffApi.getPaginated(params);
                 this.staffs = response.items || [];
                 this.totalItems = response.totalItems || 0;
@@ -78,6 +109,13 @@ export const StaffListComponent = {
             } finally {
                 this.loading = false;
             }
+        },
+        clearFilters() {
+            this.searchQuery = '';
+            this.selectedRoleIds = [];
+        },
+        hasActiveFilters() {
+            return (this.searchQuery && this.searchQuery.length > 0) || (this.selectedRoleIds && this.selectedRoleIds.length > 0);
         },
         goToCreate() {
             this.$router.push({ name: 'StaffCreate' });
@@ -109,6 +147,7 @@ export const StaffListComponent = {
         }
     },
     mounted() {
+        this.fetchRoles();
         this.fetchStaffs();
     }
 };

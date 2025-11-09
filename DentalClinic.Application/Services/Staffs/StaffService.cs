@@ -28,7 +28,8 @@ namespace DentalClinic.Application.Services.Staffs
                 pagingParams.PageSize,
                 pagingParams.SearchTerm,
                 pagingParams.SortBy,
-                pagingParams.SortDirection
+                pagingParams.SortDirection,
+                pagingParams.RoleIds
             );
 
             var staffDtos = users.Select(user =>
