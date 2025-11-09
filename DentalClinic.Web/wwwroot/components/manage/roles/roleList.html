@@ -1,5 +1,5 @@
 ﻿<!-- Bắt đầu file: wwwroot/components/manage/roleList.html -->
-<v-card class="pa-4" rounded="lg">
+<v-card class="pa-4 table-style-1" rounded="lg">
     <v-card-title class="d-flex flex-column flex-sm-row justify-space-between align-start align-sm-center ga-3">
         <span class="text-h6">Quản lý Vai trò (Roles)</span>
         <v-btn color="primary" @click="openCreateDialog" class="btn-primary" prepend-icon="mdi-account-lock-outline">
@@ -14,9 +14,12 @@
         <!-- Data Table (Desktop và Mobile dùng chung vì ít cột) -->
         <div v-else class="scrollable-card-text">
             <v-data-table :headers="headers" :items="roles" item-value="roleId" class="elevation-1" :loading="loading"
-                loading-text="Đang tải dữ liệu..." no-data-text="Không tìm thấy vai trò nào" :items-per-page="10"
-                density="comfortable">
+                loading-text="Đang tải dữ liệu..." no-data-text="Không tìm thấy vai trò nào" :items-per-page="pageSize"
+                density="comfortable" hover>
 
+                <template v-slot:item.stt="{ index }">
+                    <span>{{ index + 1 }}</span>
+                </template>
                 <template v-slot:item.name="{ item }">
                     <v-chip :color="item.color" size="small">
                         {{ item.name }}
@@ -33,7 +36,6 @@
                         </v-tooltip>
                         <v-tooltip location="top" text="Xóa">
                             <template v-slot:activator="{ props }">
-                                <!-- Không cho xóa Role "Admin" (Giả định) -->
                                 <v-btn v-if="item.name !== 'Admin'" v-bind="props" icon="mdi-delete" variant="text"
                                     color="error" size="small" @click="confirmDelete(item)"></v-btn>
                             </template>

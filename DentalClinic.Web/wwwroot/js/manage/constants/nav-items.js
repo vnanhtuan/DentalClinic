@@ -59,7 +59,7 @@
         icon: 'mdi-account-group',
         route: { name: 'StaffList' },
         value: 'staff',
-        roles: ['Admin', 'HR']
+        roles: ['Admin', 'HR', 'Manager']
     },
     {
         title: 'Cài Đặt Hệ Thống',

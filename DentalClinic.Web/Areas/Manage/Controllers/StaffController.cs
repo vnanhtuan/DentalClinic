@@ -1,5 +1,9 @@
-﻿using DentalClinic.Application.DTOs.Staffs;
+﻿using DentalClinic.Application.DTOs.Common;
+using DentalClinic.Application.DTOs.Staffs;
 using DentalClinic.Application.Interfaces.Staffs;
+using DentalClinic.Application.Interfaces.Systems;
+using DentalClinic.Domain.Common;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DentalClinic.Web.Areas.Manage.Controllers
@@ -7,16 +11,33 @@ namespace DentalClinic.Web.Areas.Manage.Controllers
     [ApiController]
     [Area("Manage")]
     [Route("api/[area]/[controller]")]
+    [Authorize(Roles = RoleConstants.AdminManager)]
     public class StaffController : ControllerBase
     {
         private readonly IStaffService _staffService;
+        private readonly IRoleService _roleService;
 
-        public StaffController(IStaffService staffService)
+        public StaffController(IStaffService staffService, IRoleService roleService)
         {
             _staffService = staffService;
+            _roleService = roleService;
         }
 
-        [HttpGet]
+        [HttpGet("getpaginated")]
+        public async Task<IActionResult> GetPaginatedStaff([FromQuery] PagingParams pagingParams)
+        {
+            var staffs = await _staffService.GetStaffPaginatedAsync(pagingParams);
+            return Ok(staffs);
+        }
+
+        [HttpGet("initform")]
+        public async Task<IActionResult> GetInit()
+        {
+            var roles = await _roleService.GetAllRolesAsync();
+            return Ok(roles);
+        }
+
+        [HttpGet("getall")]
         public async Task<IActionResult> GetAllStaff()
         {
             var staffs = await _staffService.GetAllStaffAsync();

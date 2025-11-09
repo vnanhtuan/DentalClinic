@@ -69,7 +69,7 @@
             <v-divider v-if="!isMobile"></v-divider>            
             
             <v-list density="compact" nav v-model:opened="openParentValue">
-                <template v-for="item in navItems" :key="item.title">                      
+                <template v-for="item in filteredNavItems" :key="item.title">                      
                     <!-- 1. Nếu item có children (Menu Cha) -->
                     <v-list-group v-if="item.children" :value="item.value">
                         <template v-slot:activator="{ props }">

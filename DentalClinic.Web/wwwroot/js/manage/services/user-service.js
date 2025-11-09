@@ -9,10 +9,10 @@ export const userService = {
         if (loginResponse.token) {
             localStorage.setItem(this.TOKEN_KEY, loginResponse.token);
         }
-        if (loginResponse.fullName && loginResponse.role) {
+        if (loginResponse.fullName && loginResponse.roles) {
             const userInfo = {
                 fullName: loginResponse.fullName,
-                role: loginResponse.role,
+                roles: loginResponse.roles,
                 loginTime: new Date().toISOString()
             };
             localStorage.setItem(this.USER_KEY, JSON.stringify(userInfo));
@@ -111,7 +111,7 @@ export const userService = {
                 color: 'green-darken-1',
                 icon: 'mdi-account-tie'
             },
-            'Manager': {
+            'Manage': {
                 displayName: 'Quản lý',
                 color: 'purple-darken-1',
                 icon: 'mdi-account-star'

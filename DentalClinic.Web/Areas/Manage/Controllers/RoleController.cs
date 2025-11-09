@@ -1,5 +1,7 @@
-﻿using DentalClinic.Application.DTOs.Systems;
+﻿using DentalClinic.Application.DTOs.Roles;
 using DentalClinic.Application.Interfaces.Systems;
+using DentalClinic.Domain.Common;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DentalClinic.Web.Areas.Manage.Controllers
@@ -7,6 +9,7 @@ namespace DentalClinic.Web.Areas.Manage.Controllers
     [ApiController]
     [Area("Manage")]
     [Route("api/[area]/[controller]")]
+    [Authorize(Roles = RoleConstants.Admin)]
     public class RoleController: ControllerBase
     {
         private readonly IRoleService _roleService;

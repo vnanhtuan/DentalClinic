@@ -1,9 +1,9 @@
-﻿using DentalClinic.Application.DTOs.Systems;
+﻿using DentalClinic.Application.DTOs.Roles;
 using DentalClinic.Application.Interfaces.Systems;
 using DentalClinic.Domain.Entities;
 using DentalClinic.Domain.Interfaces;
 
-namespace DentalClinic.Application.Services.Systems
+namespace DentalClinic.Application.Services.Roles
 {
     public class RoleService: IRoleService
     {

@@ -1,5 +1,6 @@
 ﻿import { staffApi } from './staff-api.js';
-import { roleApi } from '../roles/role-api.js';
+import { MessageDialogMixin } from '../../../js/manage/mixins/messageDialogMixin.js';
+import { PAGE_SIZE_OPTIONS, DEFAULT_PAGE_SIZE } from '../../../js/manage/constants/paginationConstants.js';
 
 const staffListResponse = await fetch('/components/manage/staffs/staffList.html');
 const staffListHtml = await staffListResponse.text();
@@ -14,72 +15,64 @@ export const StaffPage = {
 // 2. Component Danh sách Nhân sự (List)
 export const StaffListComponent = {
     template: staffListHtml,
+    mixins: [MessageDialogMixin],
     data() {
         return {
             loading: true,
             headers: [
+                { title: 'STT', key: 'stt', sortable: false, width: '80px' },
                 { title: 'Họ tên', key: 'fullName' },
                 { title: 'Chức danh', key: 'role' },
                 { title: 'Email', key: 'email' },
-                { title: 'Điện thoại', key: 'phone' },
-                { title: 'Hành động', key: 'actions', sortable: false, align: 'end' },
-            ],
-            staffs: [],
-            // Mobile-specific data
-            searchQuery: '',
+                { title: 'Điện thoại', key: 'phone' }, { title: 'Hành động', key: 'actions', sortable: false, align: 'end' },
+            ], staffs: [],
+            totalItems: 0,
+            totalPages: 0,
             currentPage: 1,
-            itemsPerPageMobile: 6,
-            // Message dialog configuration
-            showDialog: false,
-            dialogConfig: {
-                type: 'info',
-                title: '',
-                message: '',
-                showCancel: false,
-                loading: false,
-                okText: 'Đồng ý',
-                cancelText: 'Hủy',
-                onOk: () => { },
-                onCancel: () => { }
-            },
+            searchQuery: '',
+            pageSize: DEFAULT_PAGE_SIZE,
+            pageSizeOptions: PAGE_SIZE_OPTIONS,
+            searchTimeout: null,
+
             // Item being processed
             selectedItem: null
         };
-    },
+    }, 
     computed: {
         isMobile() {
             return this.$vuetify.display.smAndDown;
-        },
-        filteredStaffs() {
-            if (!this.searchQuery) return this.staffs;
-            const query = this.searchQuery.toLowerCase();
-            return this.staffs.filter(staff =>
-                staff.fullName.toLowerCase().includes(query) ||
-                (staff.roles && staff.roles.some(r => r.roleName.toLowerCase().includes(query))) ||
-                (staff.email && staff.email.toLowerCase().includes(query)) ||
-                (staff.phone && staff.phone.toLowerCase().includes(query))
-            );
-        },
-        totalPagesMobile() {
-            return Math.ceil(this.filteredStaffs.length / this.itemsPerPageMobile);
-        },
-        paginatedStaffs() {
-            const start = (this.currentPage - 1) * this.itemsPerPageMobile;
-            const end = start + this.itemsPerPageMobile;
-            return this.filteredStaffs.slice(start, end);
         }
-    },
+    }, 
     watch: {
-        searchQuery() {
-            // Reset to first page when searching
+        currentPage() {
+            this.fetchStaffs();
+        },
+        pageSize() {
             this.currentPage = 1;
+            this.fetchStaffs();
+        },
+        searchQuery() {
+            // Debounce search - wait 500ms after user stops typing
+            clearTimeout(this.searchTimeout);
+            this.searchTimeout = setTimeout(() => {
+                this.currentPage = 1;
+                this.fetchStaffs();
+            }, 500);
         }
     },
     methods: {
         async fetchStaffs() {
             this.loading = true;
             try {
-                this.staffs = await staffApi.getAll();
+                const params = {
+                    pageNumber: this.currentPage,
+                    pageSize: this.pageSize,
+                    searchTerm: this.searchQuery || ''
+                };
+                const response = await staffApi.getPaginated(params);
+                this.staffs = response.items || [];
+                this.totalItems = response.totalItems || 0;
+                this.totalPages = response.totalPages || 0;
             } catch (err) {
                 this.showErrorDialog('Không thể tải danh sách nhân sự', 'Lỗi tải dữ liệu');
             } finally {
@@ -123,6 +116,7 @@ export const StaffListComponent = {
 // 3. Component Form (Tạo mới/Chỉnh sửa)
 export const StaffFormPage = {
     template: staffFormHtml,
+    mixins: [MessageDialogMixin],
     data() {
         return {
             loading: false,
@@ -137,19 +131,6 @@ export const StaffFormPage = {
                 requiredRoles: v => (v && v.length > 0) || 'Phải chọn ít nhất một vai trò.',
                 email: v => /.+@.+\..+/.test(v) || 'Email không hợp lệ.',
                 minLength: v => (v && v.length >= 6) || 'Mật khẩu phải ít nhất 6 ký tự.',
-            },
-            // Message dialog configuration
-            showDialog: false,
-            dialogConfig: {
-                type: 'info',
-                title: '',
-                message: '',
-                showCancel: false,
-                loading: false,
-                okText: 'Đồng ý',
-                cancelText: 'Hủy',
-                onOk: () => { },
-                onCancel: () => { }
             }
         };
     },
@@ -160,10 +141,11 @@ export const StaffFormPage = {
         formTitle() {
             return this.isEditMode ? 'Chỉnh sửa Nhân sự' : 'Tạo mới Nhân sự';
         }
-    }, methods: {
-        async fetchRoles() {
+    },
+    methods: {
+        async initForm() {
             try {
-                this.roles = await roleApi.getAll();
+                this.roles = await staffApi.initForm();
             } catch (err) {
                 this.showErrorDialog('Không thể tải danh sách vai trò.', 'Lỗi tải dữ liệu');
             }
@@ -230,7 +212,7 @@ export const StaffFormPage = {
         }
     },
     created() {
-        this.fetchRoles();
+        this.initForm();
         if (this.isEditMode) {
             this.loadStaffData();
         }

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using DentalClinic.Application.DTOs.Roles;
+using System.ComponentModel.DataAnnotations;
 
 namespace DentalClinic.Application.DTOs.Staffs
 {
@@ -15,5 +16,7 @@ namespace DentalClinic.Application.DTOs.Staffs
         public string? Phone { get; set; }
 
         public List<int> RoleIds { get; set; } = new List<int>();
+
+        public List<RoleDto> Roles { get; set; } = new List<RoleDto>();
     }
 }

@@ -21,7 +21,7 @@ namespace DentalClinic.Application.Services
 
         public async Task<LoginResponseDto> LoginAsync(LoginRequestDto request)
         {
-            var user = await _userRepository.GetByUsernameAsync(request.Username);
+            var user = await _userRepository.LoginByUsernameAsync(request.Username);
             if (user == null || !user.IsActive)
             {
                 throw new Exception("Tài khoản không hợp lệ hoặc đã bị khóa.");
@@ -43,7 +43,7 @@ namespace DentalClinic.Application.Services
             {
                 Token = token,
                 FullName = user.FullName,
-                Role = user.UserType
+                Roles = user.UserRoles?.Select(ur => ur.Role.RoleName).ToList() ?? []
             };
         }
     }

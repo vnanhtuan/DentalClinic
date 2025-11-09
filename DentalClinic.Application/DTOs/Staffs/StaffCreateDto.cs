@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using DentalClinic.Application.DTOs.Roles;
+using System.ComponentModel.DataAnnotations;
 
 namespace DentalClinic.Application.DTOs.Staffs
 {
@@ -22,5 +23,7 @@ namespace DentalClinic.Application.DTOs.Staffs
         [Required]
         [MinLength(6)]
         public string Password { get; set; } = string.Empty;
+
+        public List<RoleDto> Roles { get; set; } = new List<RoleDto>();
     }
 }

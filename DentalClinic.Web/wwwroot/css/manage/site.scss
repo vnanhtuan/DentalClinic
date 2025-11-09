@@ -131,7 +131,8 @@ $text-light-grey: #666;
     text-align: center;
     padding: 60px !important; // Tăng padding
     box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2); // Tạo chút chiều sâu
-    
+    border-radius: 250px 60px;
+
     .text-h3 {
         line-height: 1.2; // Tối ưu dòng
     }
@@ -379,4 +380,67 @@ a.text-primary {
 // ----------------------------------------------------
 // END USER AVATAR AND MENU STYLES
 // ----------------------------------------------------
+
+// ----------------------------------------------------
+// ADD YOUR CUSTOM STYLES BELOW
+// ----------------------------------------------------
+.table-style-1 {
+    background-color: #efefef;
+    padding: 20px;
+    border-radius: 4px;
+
+    .v-data-table {
+        border-collapse: separate;
+        background-color: transparent !important;
+        box-shadow: none !important;
+
+        table {
+            border-spacing: 0 8px;
+        }
+    }
+
+    .v-data-table thead th {
+        background: transparent !important; // Xóa nền header
+        border-bottom: none !important; // Xóa đường kẻ header
+        color: $text-light-grey !important; // Màu chữ header
+        font-weight: 600 !important;
+        font-size: 0.8rem !important;
+        text-transform: uppercase;
+    }
+
+    .v-data-table tbody tr {
+        background-color: #ffffff; // Nền trắng cho mỗi hàng
+        border-radius: 8px !important; // Bo góc
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); // Shadow nhẹ
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+        // Xóa đường kẻ bên dưới của cell
+        td {
+            border-bottom: none !important;
+        }
+
+        // Bo góc cho cell đầu tiên và cuối cùng
+        td:first-child {
+            border-top-left-radius: 8px;
+            border-bottom-left-radius: 8px;
+        }
+        td:last-child {
+            border-top-right-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
+    }
+
+    // .v-data-table tbody tr:nth-child(even) {
+    //     background-color: #f4f4f4;
+    // }
+
+    // .v-data-table tbody tr:nth-child(odd) {
+    //     background-color: #ffffff;
+    // }
+
+    .v-data-table tbody tr:hover {
+        // !important là cần thiết để ghi đè style của Vuetify
+        background: rgba(58, 110, 213, 0.1) !important; 
+    }
+}
 

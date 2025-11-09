@@ -1,4 +1,4 @@
-﻿using DentalClinic.Application.DTOs.Systems;
+﻿using DentalClinic.Application.DTOs.Roles;
 
 namespace DentalClinic.Application.Interfaces.Systems
 {

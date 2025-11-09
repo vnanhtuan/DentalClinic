@@ -36,7 +36,39 @@ export const LayoutPage = {
             return userService.getAvatarColor(this.currentUser?.fullName || '');
         },
         roleInfo() {
-            return userService.getRoleInfo(this.currentUser?.role || '');
+            const primaryRole = this.currentUser?.roles?.[0] || '';
+            return userService.getRoleInfo(primaryRole);
+        },
+        filteredNavItems() {
+            const userRoles = this.currentUser?.roles || [];
+            if (userRoles.length === 0) {
+                return [];
+            }
+
+            // Filter parent menu items based on user roles
+            return this.navItems.filter(item => {
+                // If no roles required, show to all
+                if (!item.roles || item.roles.length === 0) {
+                    return true;
+                }
+                // Check if user has any of the required roles
+                return item.roles.some(role => userRoles.includes(role));
+            })
+            .map(item => {
+                // After filtering parents, filter children as well
+                if (item.children) {
+                    const filteredChildren = item.children.filter(child => {
+                        if (!child.roles || child.roles.length === 0) {
+                            return true;
+                        }
+                        return child.roles.some(role => userRoles.includes(role));
+                    });
+                    
+                    // Return item with filtered children
+                    return { ...item, children: filteredChildren };
+                }
+                return item;
+            });
         },
         breadcrumbs() {
             const breadcrumbItems = [];
@@ -75,7 +107,7 @@ export const LayoutPage = {
                 // Helper function to find the route and its parent group recursively
                 const findRouteInNavItems = (currentRouteName) => {
                     // First, try to find the route directly in navigation
-                    for (const item of GlobalNavItems) {
+                    for (const item of this.navItems) {
                         if (item.route && item.route.name === currentRouteName) {
                             return { foundRoute: item, parentGroup: null };
                         }

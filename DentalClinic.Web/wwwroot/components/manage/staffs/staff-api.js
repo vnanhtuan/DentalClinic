@@ -4,12 +4,22 @@ import { handleApiError } from '../../../js/utils/errorHandler.js';
 const API_URL = '/staff';
 
 export const staffApi = {
-    async getAll() {
+    async getPaginated(params) {
         try {
-            const response = await api.get(API_URL);
+            const queryParams = new URLSearchParams(params).toString();
+            const response = await api.get(`${API_URL}/getpaginated?${queryParams}`);
             return response.data;
         } catch (error) {
-            this.error = handleApiError(err);
+            console.error('Staff API error:', error);
+            throw new Error(handleApiError(error));
+        }
+    },
+    async initForm() {
+        try {
+            const response = await api.get(`${API_URL}/initform`);
+            return response.data;
+        } catch (error) {
+            throw new Error(handleApiError(error));
         }
     },
     async getById(id) {
@@ -17,7 +27,7 @@ export const staffApi = {
             const response = await api.get(`${API_URL}/${id}`);
             return response.data;
         } catch (error) {
-            this.error = handleApiError(err);
+            throw new Error(handleApiError(error));
         }
     },
     async create(staffCreateDto) {
@@ -25,7 +35,7 @@ export const staffApi = {
             const response = await api.post(API_URL, staffCreateDto);
             return response.data;
         } catch (error) {
-            this.error = handleApiError(err);
+            throw new Error(handleApiError(error));
         }
     },
     async update(id, staffUpdateDto) {
@@ -33,7 +43,7 @@ export const staffApi = {
             const response = await api.put(`${API_URL}/${id}`, staffUpdateDto);
             return response.data;
         } catch (error) {
-            this.error = handleApiError(err);
+            throw new Error(handleApiError(error));
         }
     },
     async delete(id) {
@@ -41,7 +51,7 @@ export const staffApi = {
             const response = await api.delete(`${API_URL}/${id}`);
             return response.data;
         } catch (error) {
-            this.error = handleApiError(err);
+            throw new Error(handleApiError(error));
         }
     }
 };

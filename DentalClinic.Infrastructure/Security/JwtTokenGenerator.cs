@@ -27,12 +27,23 @@ namespace DentalClinic.Infrastructure.Security
                 new Claim(JwtRegisteredClaimNames.Name, user.FullName),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.Role, user.UserType) // Đây là phần phân quyền
+                new Claim("UserType", user.UserType),
+                new Claim(ClaimTypes.Role, user.UserType)
             };
 
             if (user.UserType == UserTypeCodes.Staff && user.StaffDetail != null)
             {
                 claims.Add(new Claim("StaffRole", user.StaffDetail.RoleTitle ?? UserTypeCodes.Staff));
+            }
+
+            if (user.UserRoles != null)
+            {
+                foreach (var userRole in user.UserRoles)
+                {
+                    // Add roles (Ex: "Admin", "Manage")
+                    // For [Authorize(Roles = "...")]
+                    claims.Add(new Claim(ClaimTypes.Role, userRole.Role.RoleName));
+                }
             }
 
             var token = new JwtSecurityToken(

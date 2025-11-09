@@ -1,5 +1,6 @@
-﻿using DentalClinic.Application.DTOs.Staffs;
-using DentalClinic.Application.DTOs.Systems;
+﻿using DentalClinic.Application.DTOs.Common;
+using DentalClinic.Application.DTOs.Staffs;
+using DentalClinic.Application.DTOs.Roles;
 using DentalClinic.Application.Interfaces;
 using DentalClinic.Application.Interfaces.Staffs;
 using DentalClinic.Domain.Common;
@@ -19,6 +20,42 @@ namespace DentalClinic.Application.Services.Staffs
             _userRepository = userRepository;
             _roleRepository = roleRepository;
             _passwordHasher = passwordHasher;
+        }
+        public async Task<PagingResponse<StaffDto>> GetStaffPaginatedAsync(PagingParams pagingParams)
+        {
+            var (users, totalItems) = await _userRepository.GetStaffPaginatedAsync(
+                pagingParams.PageNumber,
+                pagingParams.PageSize,
+                pagingParams.SearchTerm,
+                pagingParams.SortBy,
+                pagingParams.SortDirection
+            );
+
+            var staffDtos = users.Select(user =>
+            {
+                return new StaffDto
+                {
+                    Id = user.UserId,
+                    FullName = user.FullName,
+                    Email = user.Email,
+                    Phone = user.Phone,
+                    Username = user.Username,
+                    CreatedAt = user.CreatedAt,
+                    Roles = user.UserRoles?.Select(ur => new RoleDto
+                    {
+                        RoleId = ur.RoleId,
+                        Name = ur.Role.RoleName,
+                        Color = ur.Role.Color
+                    }).ToList() ?? []
+                };
+            }).ToList();
+
+            return new PagingResponse<StaffDto>(
+                staffDtos,
+                totalItems,
+                pagingParams.PageNumber,
+                pagingParams.PageSize
+            );
         }
 
         public async Task<IEnumerable<StaffDto>> GetAllStaffAsync()

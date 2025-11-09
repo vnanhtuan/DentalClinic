@@ -1,4 +1,6 @@
 ﻿import { roleApi } from './role-api.js';
+import { MessageDialogMixin } from '../../../js/manage/mixins/messageDialogMixin.js';
+import { PAGE_SIZE_OPTIONS, DEFAULT_PAGE_SIZE } from '../../../js/manage/constants/paginationConstants.js';
 
 const roleListResponse = await fetch('/components/manage/roles/roleList.html');
 const roleListHtml = await roleListResponse.text();
@@ -9,29 +11,20 @@ export const SettingsPage = {
 
 export const RoleListComponent = {
     template: roleListHtml,
+    mixins: [MessageDialogMixin],
 
     data() {
         return {
             loading: true,
             itemToDelete: {},
             headers: [
+                { title: 'STT', key: 'stt', sortable: false, width: '80px' },
                 { title: 'Tên Vai Trò (RoleName)', key: 'name' },
                 { title: 'Mô tả', key: 'description' },
-                { title: 'Hành động', key: 'actions', sortable: false, align: 'end' },
-            ],
+                { title: 'Hành động', key: 'actions', sortable: false, align: 'end' },],
             roles: [],
-            showDialog: false,
-            dialogConfig: {
-                type: 'info',
-                title: '',
-                message: '',
-                showCancel: false,
-                loading: false,
-                okText: 'Đồng ý',
-                cancelText: 'Hủy',
-                onOk: () => { },
-                onCancel: () => { }
-            },
+            pageSize: DEFAULT_PAGE_SIZE,
+            pageSizeOptions: PAGE_SIZE_OPTIONS,
 
             // DIALOGS FORM
             showFormDialog: false,
@@ -61,6 +54,13 @@ export const RoleListComponent = {
         isEditMode() {
             return !!this.editedRoleId;
         }
+    },
+    watch: {
+        // pageSize watcher placeholder - if role list switches to server-side pagination, uncomment
+        // pageSize() {
+        //     this.currentPage = 1;
+        //     this.fetchRoles();
+        // }
     },
     methods: {
         async fetchRoles() {
