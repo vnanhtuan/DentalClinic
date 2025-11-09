@@ -1,7 +1,7 @@
 ﻿using DentalClinic.Application.DTOs.Common;
 using DentalClinic.Application.DTOs.Staffs;
 using DentalClinic.Application.Interfaces.Staffs;
-using DentalClinic.Application.Interfaces.Systems;
+using DentalClinic.Application.Interfaces.Roles;
 using DentalClinic.Domain.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

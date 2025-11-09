@@ -1,7 +1,8 @@
 ﻿using DentalClinic.Application.DTOs.Roles;
-using DentalClinic.Application.Interfaces.Systems;
+using DentalClinic.Application.Interfaces.Roles;
 using DentalClinic.Domain.Entities;
 using DentalClinic.Domain.Interfaces;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace DentalClinic.Application.Services.Roles
 {
@@ -9,24 +10,39 @@ namespace DentalClinic.Application.Services.Roles
     {
         private readonly IRepository<UserRole> _roleRepository;
         private readonly IRepository<UserRoleMapping> _userRoleMappingrepository;
+        private readonly IMemoryCache _cache;
 
-        public RoleService(IRepository<UserRole> roleRepository, IRepository<UserRoleMapping> userRoleMappingrepository)
+        private const string AllRolesCacheKey = "AllRolesCacheKey";
+
+        public RoleService(IRepository<UserRole> roleRepository, IRepository<UserRoleMapping> userRoleMappingrepository,
+            IMemoryCache cache)
         {
             _roleRepository = roleRepository;
             _userRoleMappingrepository = userRoleMappingrepository;
+            _cache = cache;
         }
 
         public async Task<IEnumerable<RoleDto>> GetAllRolesAsync()
         {
+            if (_cache.TryGetValue(AllRolesCacheKey, out List<RoleDto>? cachedRoles) && cachedRoles != null)
+            {
+                return cachedRoles;
+            }
             var roles = await _roleRepository.GetAllAsync();
-            return roles
+            var roleDtos = roles
                 .Select(role => new RoleDto
                 {
                     RoleId = role.RoleId,
                     Name = role.RoleName,
                     Color = role.Color,
                     Description = role.Description,
-                });
+                }).ToList();
+            var cacheEntryOptions = new MemoryCacheEntryOptions()
+                .SetAbsoluteExpiration(TimeSpan.FromHours(1));
+
+            _cache.Set(AllRolesCacheKey, roleDtos, cacheEntryOptions);
+
+            return roleDtos;
         }
 
         public async Task<RoleDto?> GetRoleByIdAsync(int id)
@@ -57,6 +73,8 @@ namespace DentalClinic.Application.Services.Roles
             await _roleRepository.AddAsync(role);
             await _roleRepository.SaveChangesAsync();
 
+            InvalidateRolesCache();
+
             return role.RoleId;
         }
         public async Task UpdateRoleAsync(int id, RoleCreateUpdateDto dto)
@@ -75,6 +93,8 @@ namespace DentalClinic.Application.Services.Roles
 
             _roleRepository.Update(role);
             await _roleRepository.SaveChangesAsync();
+
+            InvalidateRolesCache();
         }
         public async Task DeleteRoleAsync(int id)
         {
@@ -90,6 +110,13 @@ namespace DentalClinic.Application.Services.Roles
 
             _roleRepository.Delete(role);
             await _roleRepository.SaveChangesAsync();
+
+            InvalidateRolesCache();
+        }
+
+        private void InvalidateRolesCache()
+        {
+            _cache.Remove(AllRolesCacheKey);
         }
     }
 }

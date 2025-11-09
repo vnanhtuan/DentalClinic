@@ -1,6 +1,6 @@
 using DentalClinic.Application.Interfaces;
 using DentalClinic.Application.Interfaces.Staffs;
-using DentalClinic.Application.Interfaces.Systems;
+using DentalClinic.Application.Interfaces.Roles;
 using DentalClinic.Application.Services;
 using DentalClinic.Application.Services.Staffs;
 using DentalClinic.Application.Services.Roles;
@@ -28,6 +28,8 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserManagementService, UserManagementService>();
 builder.Services.AddScoped<IStaffService, StaffService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
+
+builder.Services.AddMemoryCache();
 
 // Security
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();

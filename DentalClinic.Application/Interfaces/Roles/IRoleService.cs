@@ -1,6 +1,6 @@
 ﻿using DentalClinic.Application.DTOs.Roles;
 
-namespace DentalClinic.Application.Interfaces.Systems
+namespace DentalClinic.Application.Interfaces.Roles
 {
     public interface IRoleService
     {
