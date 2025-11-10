@@ -17,6 +17,21 @@
                     variant="outlined" density="compact" class="flex-grow-1 mb-3 mb-sm-0" hide-details clearable></v-text-field>
 
                 <v-select
+                    v-model="selectedBranchIds"
+                    :items="branches"
+                    item-title="branchName"
+                    item-value="branchId"
+                    label="Lọc theo chi nhánh"
+                    multiple
+                    chips
+                    clearable
+                    variant="outlined"
+                    density="compact"
+                    hide-details
+                    style="min-width:220px; max-width:320px;"
+                ></v-select>
+
+                <v-select
                     v-model="selectedRoleIds"
                     :items="roles"
                     item-title="name"

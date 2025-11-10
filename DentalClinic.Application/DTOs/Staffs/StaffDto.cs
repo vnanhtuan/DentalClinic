@@ -1,4 +1,5 @@
-﻿using DentalClinic.Application.DTOs.Roles;
+﻿using DentalClinic.Application.DTOs.Branches;
+using DentalClinic.Application.DTOs.Roles;
 
 namespace DentalClinic.Application.DTOs.Staffs
 {
@@ -11,8 +12,10 @@ namespace DentalClinic.Application.DTOs.Staffs
         public string RoleName { get; set; } = string.Empty;
         public string RoleColor { get; set; } = string.Empty;
         public string Username { get; set; } = string.Empty;
+        public bool IsActive { get; set; }
         public DateTime CreatedAt { get; set; }
 
-        public List<RoleDto> Roles { get; set; } = new List<RoleDto>();
+        public List<RoleDto> Roles { get; set; } = [];
+        public List<BranchDto> Branches { get; set; } = [];
     }
 }

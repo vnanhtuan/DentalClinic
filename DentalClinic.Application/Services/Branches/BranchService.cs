@@ -1,29 +1,60 @@
 using DentalClinic.Application.DTOs.Branches;
 using DentalClinic.Application.Interfaces.Branches;
+using DentalClinic.Application.Providers;
 using DentalClinic.Domain.Entities;
 using DentalClinic.Domain.Interfaces;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace DentalClinic.Application.Services.Branches
 {
     public class BranchService : IBranchService
     {
         private readonly IBranchRepository _branchRepository;
+        private readonly ICurrentUserProvider _currentUser;
+        private readonly IMemoryCache _cache;
 
-        public BranchService(IBranchRepository branchRepository)
+        private const string AllBranchesCacheKey = "AllBranchesCacheKey";
+        private const string AllBranchesActiveCacheKey = "AllBranchesActiveCacheKey";
+        public BranchService(IBranchRepository branchRepository, ICurrentUserProvider currentUser, IMemoryCache cache)
+            
         {
             _branchRepository = branchRepository;
+            _currentUser = currentUser;
+            _cache = cache;
         }
 
         public async Task<IEnumerable<BranchDto>> GetAllBranchesAsync()
         {
+            if (_cache.TryGetValue(AllBranchesCacheKey, out List<BranchDto>? cachedBranches) && cachedBranches != null)
+            {
+                return cachedBranches;
+            }
             var branches = await _branchRepository.GetAllAsync();
-            return branches.Select(MapToDto);
+            var branchDtos = branches.Select(MapToDto).ToList();
+
+            var cacheEntryOptions = new MemoryCacheEntryOptions()
+                .SetAbsoluteExpiration(TimeSpan.FromHours(1));
+
+            _cache.Set(AllBranchesCacheKey, branchDtos, cacheEntryOptions);
+
+            return branchDtos;
         }
 
         public async Task<IEnumerable<BranchDto>> GetActiveBranchesAsync()
         {
+            if (_cache.TryGetValue(AllBranchesActiveCacheKey, out List<BranchDto>? cachedBranches) && cachedBranches != null)
+            {
+                return cachedBranches;
+            }
             var branches = await _branchRepository.GetActiveBranchesAsync();
-            return branches.Select(MapToDto);
+            var branchDtos = branches.Select(MapToDto).ToList();
+
+            var cacheEntryOptions = new MemoryCacheEntryOptions()
+                .SetAbsoluteExpiration(TimeSpan.FromHours(1));
+
+            _cache.Set(AllBranchesActiveCacheKey, branchDtos, cacheEntryOptions);
+
+            return branchDtos;
         }
 
         public async Task<BranchDto?> GetBranchByIdAsync(int branchId)
@@ -63,6 +94,8 @@ namespace DentalClinic.Application.Services.Branches
             await _branchRepository.AddAsync(branch);
             await _branchRepository.SaveChangesAsync();
 
+            InvalidateBranchesCache();
+
             return MapToDto(branch);
         }
 
@@ -84,21 +117,29 @@ namespace DentalClinic.Application.Services.Branches
 
             _branchRepository.Update(branch);
             await _branchRepository.SaveChangesAsync();
+
+            InvalidateBranchesCache();
             return true;
         }
 
         public async Task<bool> DeleteBranchAsync(int branchId)
         {
-            var branch = await _branchRepository.GetByIdAsync(branchId);
-            if (branch == null) return false;
+            if (_currentUser.IsSuperAdmin)
+            {
+                var branch = await _branchRepository.GetByIdAsync(branchId);
+                if (branch == null) return false;
 
-            // Soft delete
-            branch.IsActive = false;
-            branch.UpdatedAt = DateTime.UtcNow;
+                // Soft delete
+                branch.IsActive = false;
+                branch.UpdatedAt = DateTime.UtcNow;
 
-            _branchRepository.Update(branch);
-            await _branchRepository.SaveChangesAsync();
-            return true;
+                _branchRepository.Update(branch);
+                await _branchRepository.SaveChangesAsync();
+
+                InvalidateBranchesCache();
+                return true;
+            }
+            return false;
         }
 
         public async Task<IEnumerable<UserBranchDto>> GetUsersByBranchAsync(int branchId)
@@ -167,6 +208,12 @@ namespace DentalClinic.Application.Services.Branches
                 IsMainBranch = branch.IsMainBranch,
                 CreatedAt = branch.CreatedAt
             };
+        }
+
+        private void InvalidateBranchesCache()
+        {
+            _cache.Remove(AllBranchesCacheKey);
+            _cache.Remove(AllBranchesActiveCacheKey);
         }
     }
 }

@@ -36,7 +36,9 @@ export const StaffListComponent = {
 
             // Role filter
             roles: [],
+            branches: [],
             selectedRoleIds: [],
+            selectedBranchIds: [],
 
             // Item being processed
             selectedItem: null
@@ -71,6 +73,10 @@ export const StaffListComponent = {
             this.currentPage = 1;
             this.fetchStaffs();
         },
+        selectedBranchIds(){
+            this.currentPage = 1;
+            this.fetchStaffs();
+        },
         searchQuery() {
             // Debounce search - wait 500ms after user stops typing
             clearTimeout(this.searchTimeout);
@@ -81,11 +87,13 @@ export const StaffListComponent = {
         }
     },
     methods: {
-        async fetchRoles() {
+        async initForm() {
             try {
-                this.roles = await staffApi.initForm();
+                const response = await staffApi.initForm();
+                this.roles = response.roles || [];
+                this.branches = response.branches || [];
             } catch (err) {
-                this.showErrorDialog('Không thể tải danh sách nhân sự.', 'Lỗi tải dữ liệu');
+                this.showErrorDialog('Không thể tải danh sách.', 'Lỗi tải dữ liệu');
             }
         },
         async fetchStaffs() {
@@ -97,9 +105,13 @@ export const StaffListComponent = {
                     searchTerm: this.searchQuery || ''
                 };
                 if (this.selectedRoleIds && this.selectedRoleIds.length > 0) {
-                    // send as array so staffApi will encode roleIds=1&roleIds=2
                     params.roleIds = this.selectedRoleIds.slice();
                 }
+
+                if (this.selectedBranchIds && this.selectedBranchIds.length > 0) {
+                    params.branchIds = this.selectedBranchIds.slice();
+                }
+
                 const response = await staffApi.getPaginated(params);
                 this.staffs = response.items || [];
                 this.totalItems = response.totalItems || 0;
@@ -115,7 +127,9 @@ export const StaffListComponent = {
             this.selectedRoleIds = [];
         },
         hasActiveFilters() {
-            return (this.searchQuery && this.searchQuery.length > 0) || (this.selectedRoleIds && this.selectedRoleIds.length > 0);
+            return (this.searchQuery && this.searchQuery.length > 0) || 
+            (this.selectedRoleIds && this.selectedRoleIds.length > 0) ||
+            (this.selectedBranchIds && this.selectedBranchIds.length > 0);
         },
         goToCreate() {
             this.$router.push({ name: 'StaffCreate' });
@@ -147,7 +161,7 @@ export const StaffListComponent = {
         }
     },
     mounted() {
-        this.fetchRoles();
+        this.initForm();
         this.fetchStaffs();
     }
 };
@@ -161,12 +175,14 @@ export const StaffFormPage = {
             loading: false,
             staffId: this.$route.params.id || null,
             staff: {
-                fullName: '', email: '', phone: '', roleId: null, username: '', password: ''
+                fullName: '', email: '', phone: '', roleId: null, branchIds: [], username: '', password: ''
             },
             roles: [],
+            branches: [],
             error: null,
             rules: {
                 required: v => !!v || 'Thông tin bắt buộc.',
+                requiredBranches: v => (v && v.length > 0) || 'Phải chọn ít nhất một chi nhánh.',
                 requiredRoles: v => (v && v.length > 0) || 'Phải chọn ít nhất một vai trò.',
                 email: v => /.+@.+\..+/.test(v) || 'Email không hợp lệ.',
                 minLength: v => (v && v.length >= 6) || 'Mật khẩu phải ít nhất 6 ký tự.',
@@ -184,9 +200,15 @@ export const StaffFormPage = {
     methods: {
         async initForm() {
             try {
-                this.roles = await staffApi.initForm();
+                const response = await staffApi.initForm();
+                this.roles = response.roles || [];
+                this.branches = response.branches || [];
+
+                if (!this.isEditMode && this.branches.length === 1) {
+                    this.staff.branchIds = [this.branches[0].branchId];
+                }
             } catch (err) {
-                this.showErrorDialog('Không thể tải danh sách vai trò.', 'Lỗi tải dữ liệu');
+                this.showErrorDialog('Không thể tải danh sách.', 'Lỗi tải dữ liệu');
             }
         },
         async loadStaffData() {
@@ -198,6 +220,7 @@ export const StaffFormPage = {
                     email: data.email,
                     phone: data.phone,
                     roleIds: data.roles.map(r => r.roleId),
+                    branchIds: data.branches.map(b => b.branchId),
                     username: data.username
                 };
             } catch (err) {
@@ -224,6 +247,7 @@ export const StaffFormPage = {
                         email: this.staff.email,
                         phone: this.staff.phone,
                         roleIds: this.staff.roleIds,
+                        branchIds: this.staff.branchIds
                     };
                     await staffApi.update(this.staffId, updateDto);
                     this.showSuccessDialog(

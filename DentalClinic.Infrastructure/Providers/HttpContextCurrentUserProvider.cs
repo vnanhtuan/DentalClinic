@@ -49,6 +49,15 @@ namespace DentalClinic.Infrastructure.Providers
         ?? User?.FindFirst("userType")?.Value
         ?? string.Empty;
 
+        public int BranchId 
+        {
+            get
+            {
+                var branchIdClaim = User?.FindFirst("branchId")?.Value;
+                return int.TryParse(branchIdClaim, out var id) ? id : 0;
+            }
+        }
+
         public bool IsSuperAdmin =>
         UserTypeCode.Equals(UserTypeCodes.SuperAdmin, StringComparison.OrdinalIgnoreCase);
 

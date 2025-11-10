@@ -1,4 +1,5 @@
-﻿using DentalClinic.Application.DTOs.Roles;
+﻿using DentalClinic.Application.DTOs.Branches;
+using DentalClinic.Application.DTOs.Roles;
 using System.ComponentModel.DataAnnotations;
 
 namespace DentalClinic.Application.DTOs.Staffs
@@ -15,8 +16,10 @@ namespace DentalClinic.Application.DTOs.Staffs
 
         public string? Phone { get; set; }
 
-        public List<int> RoleIds { get; set; } = new List<int>();
+        public List<int> RoleIds { get; set; } = [];
+        public List<int> BranchIds { get; set; } = [];
 
-        public List<RoleDto> Roles { get; set; } = new List<RoleDto>();
+        public List<RoleDto> Roles { get; set; } = [];
+        public List<BranchDto> Branches { get; set; } = [];
     }
 }

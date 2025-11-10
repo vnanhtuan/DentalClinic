@@ -12,7 +12,6 @@ namespace DentalClinic.Infrastructure
         public DbSet<StaffDetail> StaffDetails => Set<StaffDetail>();
         public DbSet<PatientDetail> PatientDetails => Set<PatientDetail>();
         public DbSet<UserRole> UserRoles => Set<UserRole>();
-        public DbSet<UserRoleMapping> UserRoleMappings => Set<UserRoleMapping>();
         public DbSet<Branch> Branches => Set<Branch>();
         public DbSet<UserBranchMapping> UserBranchMappings => Set<UserBranchMapping>();
         public DbSet<Permission> Permissions => Set<Permission>();
@@ -30,10 +29,6 @@ namespace DentalClinic.Infrastructure
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
-            // Many-to-many: User <-> Role
-            modelBuilder.Entity<UserRoleMapping>()
-                .HasKey(ur => new { ur.UserId, ur.RoleId });
 
             // Composite key for UserBranchMapping (User can have different roles at different branches)
             modelBuilder.Entity<UserBranchMapping>()

@@ -9,16 +9,16 @@ namespace DentalClinic.Application.Services.Roles
     public class RoleService: IRoleService
     {
         private readonly IRepository<UserRole> _roleRepository;
-        private readonly IRepository<UserRoleMapping> _userRoleMappingrepository;
+        private readonly IRepository<UserBranchMapping> _userBranchMappingrepository;
         private readonly IMemoryCache _cache;
 
         private const string AllRolesCacheKey = "AllRolesCacheKey";
 
-        public RoleService(IRepository<UserRole> roleRepository, IRepository<UserRoleMapping> userRoleMappingrepository,
+        public RoleService(IRepository<UserRole> roleRepository, IRepository<UserBranchMapping> userBranchMappingrepository,
             IMemoryCache cache)
         {
             _roleRepository = roleRepository;
-            _userRoleMappingrepository = userRoleMappingrepository;
+            _userBranchMappingrepository = userBranchMappingrepository;
             _cache = cache;
         }
 
@@ -102,7 +102,7 @@ namespace DentalClinic.Application.Services.Roles
             if (role == null)
                 throw new KeyNotFoundException("Not Found");
 
-            var isRoleInUse = await _userRoleMappingrepository.FindAsync(m => m.RoleId == id);
+            var isRoleInUse = await _userBranchMappingrepository.FindAsync(m => m.RoleId == id);
             if (isRoleInUse != null)
             {
                 throw new InvalidOperationException($"Can't delete '{role.RoleName}' cause existing user have this role");

@@ -6,24 +6,24 @@
                 <v-col cols="12" md="6">
                     <v-text-field label="Họ và Tên" v-model="staff.fullName" variant="outlined"
                         :rules="[rules.required]"></v-text-field>
-
-                    <v-text-field label="Email" v-model="staff.email" variant="outlined"
-                        :rules="[rules.required, rules.email]"></v-text-field>
-
-                    <v-text-field label="Điện thoại" v-model="staff.phone" variant="outlined"></v-text-field>
+                    <v-select label="Chi nhánh" v-model="staff.branchIds" :items="branches" item-title="branchName"
+                        item-value="branchId" variant="outlined" required multiple chips :rules="[rules.requiredBranches]"
+                        placeholder="Chọn một chi nhánh" class="mb-4">
+                    </v-select>
+                    <v-text-field label="Tên đăng nhập" v-model="staff.username" variant="outlined"
+                        :rules="[rules.required]" :disabled="isEditMode"></v-text-field>
+                    <!-- Chỉ hiển thị mật khẩu khi tạo mới -->
+                    <v-text-field v-if="!isEditMode" label="Mật khẩu" v-model="staff.password" variant="outlined"
+                        type="password" :rules="[rules.required, rules.minLength]"></v-text-field>
                 </v-col>
                 <v-col cols="12" md="6">
+                    <v-text-field label="Điện thoại" v-model="staff.phone" variant="outlined"></v-text-field>
                     <v-select label="Chức danh/Vai trò" v-model="staff.roleIds" :items="roles" item-title="name"
                         item-value="roleId" variant="outlined" required multiple chips :rules="[rules.requiredRoles]"
                         placeholder="Chọn một vai trò" class="mb-4">
                     </v-select>
-
-                    <v-text-field label="Tên đăng nhập" v-model="staff.username" variant="outlined"
-                        :rules="[rules.required]" :disabled="isEditMode"></v-text-field>
-
-                    <!-- Chỉ hiển thị mật khẩu khi tạo mới -->
-                    <v-text-field v-if="!isEditMode" label="Mật khẩu" v-model="staff.password" variant="outlined"
-                        type="password" :rules="[rules.required, rules.minLength]"></v-text-field>
+                    <v-text-field label="Email" v-model="staff.email" variant="outlined"
+                        :rules="[rules.required, rules.email]"></v-text-field>
                 </v-col>
             </v-row>
 

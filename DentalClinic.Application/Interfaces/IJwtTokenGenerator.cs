@@ -4,6 +4,6 @@ namespace DentalClinic.Application.Interfaces
 {
     public interface IJwtTokenGenerator
     {
-        Task<string> GenerateTokenAsync(User user);
+        string GenerateToken(User user, List<UserBranchMapping> assignments);
     }
 }

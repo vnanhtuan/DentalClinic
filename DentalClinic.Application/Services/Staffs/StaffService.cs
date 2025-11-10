@@ -1,6 +1,7 @@
-﻿using DentalClinic.Application.DTOs.Common;
-using DentalClinic.Application.DTOs.Staffs;
+﻿using DentalClinic.Application.DTOs.Branches;
+using DentalClinic.Application.DTOs.Common;
 using DentalClinic.Application.DTOs.Roles;
+using DentalClinic.Application.DTOs.Staffs;
 using DentalClinic.Application.Interfaces;
 using DentalClinic.Application.Interfaces.Staffs;
 using DentalClinic.Domain.Common;
@@ -12,13 +13,18 @@ namespace DentalClinic.Application.Services.Staffs
     public class StaffService : IStaffService
     {
         private readonly IUserRepository _userRepository;
+        private readonly IUserBranchMappingRepository _mappingRepository;
+        private readonly IRepository<Branch> _branchRepository;
         private readonly IRepository<UserRole> _roleRepository;
         private readonly IPasswordHasher _passwordHasher;
 
-        public StaffService(IUserRepository userRepository, IRepository<UserRole> roleRepository, IPasswordHasher passwordHasher)
+        public StaffService(IUserRepository userRepository, IUserBranchMappingRepository mappingRepository,
+            IRepository<Branch> branchRepository, IRepository<UserRole> roleRepository, IPasswordHasher passwordHasher)
         {
             _userRepository = userRepository;
             _roleRepository = roleRepository;
+            _branchRepository = branchRepository;
+            _mappingRepository = mappingRepository;
             _passwordHasher = passwordHasher;
         }
         public async Task<PagingResponse<StaffDto>> GetStaffPaginatedAsync(PagingParams pagingParams)
@@ -29,27 +35,11 @@ namespace DentalClinic.Application.Services.Staffs
                 pagingParams.SearchTerm,
                 pagingParams.SortBy,
                 pagingParams.SortDirection,
-                pagingParams.RoleIds
+                pagingParams.RoleIds,
+                pagingParams.BranchIds
             );
 
-            var staffDtos = users.Select(user =>
-            {
-                return new StaffDto
-                {
-                    Id = user.UserId,
-                    FullName = user.FullName,
-                    Email = user.Email,
-                    Phone = user.Phone,
-                    Username = user.Username,
-                    CreatedAt = user.CreatedAt,
-                    Roles = user.UserRoles?.Select(ur => new RoleDto
-                    {
-                        RoleId = ur.RoleId,
-                        Name = ur.Role.RoleName,
-                        Color = ur.Role.Color
-                    }).ToList() ?? []
-                };
-            }).ToList();
+            var staffDtos = users.Select(MapUserToStaffDto).ToList();
 
             return new PagingResponse<StaffDto>(
                 staffDtos,
@@ -61,57 +51,24 @@ namespace DentalClinic.Application.Services.Staffs
 
         public async Task<IEnumerable<StaffDto>> GetAllStaffAsync()
         {
-            var users = await _userRepository.GetAllWithRolesAsync();
+            var users = await _userRepository.GetAllWithAssignmentsAsync();
 
             return users
                 .Where(u => u.UserType == UserTypeCodes.Staff.ToString())
-                .Select(user => {
-                    var primaryRoleMapping = user.UserRoles?.FirstOrDefault();
-                    return new StaffDto
-                    {
-                        Id = user.UserId,
-                        FullName = user.FullName,
-                        Email = user.Email,
-                        Phone = user.Phone,
-                        RoleName = primaryRoleMapping?.Role.RoleName ?? "N/A",
-                        RoleColor = primaryRoleMapping?.Role.Color ?? "",
-                        Username = user.Username,
-                        CreatedAt = user.CreatedAt,
-                        Roles = user.UserRoles?.Select(ur => new RoleDto
-                        {
-                            RoleId = ur.RoleId,
-                            Name = ur.Role.RoleName,
-                            Color = ur.Role.Color
-                        }).ToList() ?? []
-                    };
-                });
+                .Select(MapUserToStaffDto)
+                .ToList();
         }
 
         public async Task<StaffDto?> GetStaffByIdAsync(int id)
         {
-            var user = await _userRepository.GetByIdWithRolesAsync(id);
+            var user = await _userRepository.GetByIdWithAssignmentsAsync(id);
 
             if (user == null || user.UserType != UserTypeCodes.Staff.ToString())
             {
                 return null;
             }
-            var primaryRoleMapping = user.UserRoles?.FirstOrDefault();
 
-            return new StaffDto
-            {
-                Id = user.UserId,
-                FullName = user.FullName,
-                Email = user.Email,
-                Phone = user.Phone,
-                Username = user.Username,
-                CreatedAt = user.CreatedAt,
-                Roles = user.UserRoles?.Select(ur => new RoleDto
-                {
-                    RoleId = ur.RoleId,
-                    Name = ur.Role.RoleName,
-                    Color = ur.Role.Color
-                }).ToList() ?? new List<RoleDto>()
-            };
+            return MapUserToStaffDto(user);
         }
 
         public async Task<int> CreateStaffAsync(StaffCreateDto dto)
@@ -133,12 +90,25 @@ namespace DentalClinic.Application.Services.Staffs
                 Username = dto.Username,
                 PasswordHash = _passwordHasher.HashPassword(dto.Password),
                 CreatedAt = DateTime.UtcNow,
-                UserRoles = []
+                IsActive = true
             };
 
-            foreach (var roleId in dto.RoleIds.Distinct())
+            user.UserBranches = new List<UserBranchMapping>();
+            var distinctBranchIds = dto.BranchIds.Distinct();
+            var distinctRoleIds = dto.RoleIds.Distinct();
+
+            foreach (var branchId in distinctBranchIds)
             {
-                user.UserRoles.Add(new UserRoleMapping { RoleId = roleId });
+                foreach (var roleId in distinctRoleIds)
+                {
+                    user.UserBranches.Add(new UserBranchMapping
+                    {
+                        BranchId = branchId,
+                        RoleId = roleId,
+                        IsActive = true,
+                        AssignedAt = DateTime.UtcNow
+                    });
+                }
             }
 
             await _userRepository.AddAsync(user);
@@ -149,18 +119,22 @@ namespace DentalClinic.Application.Services.Staffs
 
         public async Task UpdateStaffAsync(int id, StaffUpdateDto dto)
         {
-            var user = await _userRepository.GetByIdWithRolesAsync(id);
+            var user = await _userRepository.GetByIdWithAssignmentsAsync(id);
 
             if (user == null || user.UserType != UserTypeCodes.Staff.ToString())
                 throw new KeyNotFoundException("Not Found.");
+
+            //if (!await _userRepository.IsEmailUniqueAsync(dto.Email, id))
+            //    throw new DbUpdateException("Email đã được sử dụng bởi tài khoản khác.");
 
             await ValidateRoleIds(dto.RoleIds);
 
             user.FullName = dto.FullName;
             user.Email = dto.Email;
             user.Phone = dto.Phone ?? "";
+            user.UserBranches ??= [];
 
-            SyncUserRoles(user, dto.RoleIds);
+            SyncUserAssignments(user, dto.BranchIds, dto.RoleIds);
 
             _userRepository.Update(user);
             await _userRepository.SaveChangesAsync();
@@ -172,6 +146,9 @@ namespace DentalClinic.Application.Services.Staffs
 
             if (user == null || user.UserType != UserTypeCodes.Staff.ToString())
                 throw new KeyNotFoundException("Not Found");
+
+            if (user.UserType == UserTypeCodes.SuperAdmin)
+                throw new InvalidOperationException("Không thể xóa SuperAdmin.");
 
             _userRepository.Delete(user);
             await _userRepository.SaveChangesAsync();
@@ -195,32 +172,82 @@ namespace DentalClinic.Application.Services.Staffs
             }
         }
 
-        private void SyncUserRoles(User user, List<int> newRoleIds)
+        private StaffDto MapUserToStaffDto(User user)
         {
-            var distinctNewRoleIds = newRoleIds.Distinct().ToList();
-            
-            user.UserRoles ??= [];
+            var assignments = user.UserBranches ?? [];
 
-            // 1. Get all RoleIds existing
-            var existingRoleIds = user.UserRoles.Select(m => m.RoleId).ToList() ?? [];
+            return new StaffDto
+            {
+                Id = user.UserId,
+                FullName = user.FullName,
+                Email = user.Email,
+                Phone = user.Phone,
+                Username = user.Username,
+                IsActive = user.IsActive,
+                CreatedAt = user.CreatedAt,
 
-            // 2. Find RoleId add new
-            var rolesToAddIds = distinctNewRoleIds.Except(existingRoleIds).ToList();
+                Branches = assignments
+                    .Select(m => m.Branch)
+                    .DistinctBy(b => b.BranchId)
+                    .Select(b => new BranchDto
+                    {
+                        BranchId = b.BranchId,
+                        BranchName = b.BranchName
+                    }).ToList(),
 
-            // 3. Find RoleMapping to remove
-            var rolesToRemoveIds = existingRoleIds.Except(distinctNewRoleIds).ToList();
-            var mappingsToRemove = user.UserRoles
-                                      .Where(m => rolesToRemoveIds.Contains(m.RoleId))
-                                      .ToList() ?? [];
+                Roles = assignments
+                    .Select(m => m.Role)
+                    .DistinctBy(r => r.RoleId)
+                    .Select(r => new RoleDto
+                    {
+                        RoleId = r.RoleId,
+                        Name = r.RoleName,
+                        Color = r.Color
+                    }).ToList()
+            };
+        }
+
+        private void SyncUserAssignments(User user, List<int> newBranchIds, List<int> newRoleIds)
+        {
+            var distinctBranchIds = newBranchIds.Distinct().ToList();
+            var distinctRoleIds = newRoleIds.Distinct().ToList();
+
+            var desiredMappings = new HashSet<(int BranchId, int RoleId)>();
+            foreach (var branchId in distinctBranchIds)
+            {
+                foreach (var roleId in distinctRoleIds)
+                {
+                    desiredMappings.Add((branchId, roleId));
+                }
+            }
+
+            var existingMappings = user.UserBranches!
+                        .Select(m => (m.BranchId, m.RoleId))
+                        .ToHashSet();
+
+            var mappingsToRemove = user.UserBranches!
+                .Where(m => !desiredMappings.Contains((m.BranchId, m.RoleId)))
+                .ToList();
 
             foreach (var mapping in mappingsToRemove)
             {
-                user.UserRoles.Remove(mapping);
+                _mappingRepository.Delete(mapping);
             }
 
-            foreach (var roleId in rolesToAddIds)
+            var mappingsToAdd = desiredMappings
+                .Where(dm => !existingMappings.Contains(dm))
+                .ToList();
+
+            foreach (var (branchId, roleId) in mappingsToAdd)
             {
-                user.UserRoles.Add(new UserRoleMapping { RoleId = roleId, UserId = user.UserId });
+                user.UserBranches!.Add(new UserBranchMapping
+                {
+                    UserId = user.UserId,
+                    BranchId = branchId,
+                    RoleId = roleId,
+                    IsActive = true,
+                    AssignedAt = DateTime.UtcNow
+                });
             }
         }
     }

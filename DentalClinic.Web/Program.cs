@@ -34,6 +34,8 @@ builder.Services.AddScoped<ICurrentUserProvider, HttpContextCurrentUserProvider>
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IBranchRepository, BranchRepository>();
+builder.Services.AddScoped<IUserBranchMappingRepository, UserBranchMappingRepository>();
+
 
 // Services
 builder.Services.AddScoped<IAuthService, AuthService>();

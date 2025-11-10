@@ -13,19 +13,15 @@ namespace DentalClinic.Infrastructure.Security
     public class JwtTokenGenerator: IJwtTokenGenerator
     {
         private readonly JwtSettings _jwtSettings;
-        private readonly IUserRepository _userRepository;
-        private readonly IBranchRepository _branchRepository;
         public JwtTokenGenerator(IOptions<JwtSettings> jwtSettings,
             IUserRepository userRepository,
             IBranchRepository branchRepository)
         {
             _jwtSettings = jwtSettings.Value;
-            _userRepository = userRepository;
-            _branchRepository = branchRepository;
         }
-        public async Task<string> GenerateTokenAsync(User user)
+        public string GenerateToken(User user, List<UserBranchMapping> assignments)
         {
-            var claims = await BuildClaimAsync(user);
+            var claims = BuildClaim(user, assignments);
             // Create token
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -45,7 +41,7 @@ namespace DentalClinic.Infrastructure.Security
             return tokenHandler.WriteToken(token);
         }
 
-        private async Task<List<Claim>> BuildClaimAsync(User user)
+        private List<Claim> BuildClaim(User user, List<UserBranchMapping> assignments)
         {
             var claims = new List<Claim>
             {
@@ -53,34 +49,32 @@ namespace DentalClinic.Infrastructure.Security
                 new Claim(JwtRegisteredClaimNames.Name, user.FullName),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+
                 new Claim("auth_time", DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString()),
                 new Claim("userTypeCode", user.UserType)
             };
 
-            if (user.UserRoles != null)
+            if (assignments != null && assignments.Any())
             {
-                foreach (var userRole in user.UserRoles)
+                var primaryAssignment = assignments.First();
+
+                claims.Add(new Claim("branchId", primaryAssignment.BranchId.ToString()));
+
+                var roleNames = assignments.Select(a => a.Role.RoleName).Distinct();
+                foreach (var roleName in roleNames)
                 {
                     // Add roles (Ex: "Admin", "Manage")
                     // For [Authorize(Roles = "...")]
-                    claims.Add(new Claim(ClaimTypes.Role, userRole.Role.RoleName));
-                    claims.Add(new Claim("role", userRole.Role.RoleName));
+                    claims.Add(new Claim(ClaimTypes.Role, roleName));
                 }
             }
-
-            if (user.UserType == UserTypeCodes.Staff)
+            else if (user.UserType == UserTypeCodes.SuperAdmin)
             {
-                var userBranches = await _branchRepository.GetBranchesByUserIdAsync(user.UserId);
-                foreach (var branch in userBranches)
-                {
-                    claims.Add(new Claim("branchId", branch.BranchId.ToString()));
-                }
-
-                // Optional: Add branch names for display purposes
-                //foreach (var branch in userBranches)
-                //{
-                //    claims.Add(new Claim("branchName", branch.BranchName));
-                //}
+                claims.Add(new Claim(ClaimTypes.Role, RoleConstants.Admin));
+                claims.Add(new Claim(ClaimTypes.Role, RoleConstants.Manager));
+                claims.Add(new Claim(ClaimTypes.Role, RoleConstants.Doctor));
+                claims.Add(new Claim(ClaimTypes.Role, RoleConstants.Staff));
+                claims.Add(new Claim(ClaimTypes.Role, RoleConstants.Nurse));
             }
 
             // Add permissions (if you have a permission system)

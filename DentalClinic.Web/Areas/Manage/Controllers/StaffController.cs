@@ -5,6 +5,7 @@ using DentalClinic.Application.Interfaces.Roles;
 using DentalClinic.Domain.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using DentalClinic.Application.Interfaces.Branches;
 
 namespace DentalClinic.Web.Areas.Manage.Controllers
 {
@@ -16,11 +17,13 @@ namespace DentalClinic.Web.Areas.Manage.Controllers
     {
         private readonly IStaffService _staffService;
         private readonly IRoleService _roleService;
+        private readonly IBranchService _branchService;
 
-        public StaffController(IStaffService staffService, IRoleService roleService)
+        public StaffController(IStaffService staffService, IRoleService roleService, IBranchService branchService)
         {
             _staffService = staffService;
             _roleService = roleService;
+            _branchService = branchService;
         }
 
         [HttpGet("getpaginated")]
@@ -31,10 +34,16 @@ namespace DentalClinic.Web.Areas.Manage.Controllers
         }
 
         [HttpGet("initform")]
-        public async Task<IActionResult> GetInit()
+        public async Task<ActionResult<IEnumerable<StaffInitDto>>> GetInit()
         {
             var roles = await _roleService.GetAllRolesAsync();
-            return Ok(roles);
+            var branches = await _branchService.GetActiveBranchesAsync();
+
+            return Ok(new StaffInitDto
+            { 
+                Roles = roles.ToList(),
+                Branches = branches.ToList()
+            });
         }
 
         [HttpGet("getall")]

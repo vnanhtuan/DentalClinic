@@ -15,8 +15,6 @@
 
         public StaffDetail? StaffDetail { get; set; }
         public PatientDetail? PatientDetail { get; set; }
-
-        public ICollection<UserRoleMapping>? UserRoles { get; set; }
         public ICollection<UserBranchMapping>? UserBranches { get; set; }
         public ICollection<Appointment>? PatientAppointments { get; set; }
         public ICollection<Appointment>? StaffAppointments { get; set; }

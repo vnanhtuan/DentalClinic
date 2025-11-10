@@ -1,4 +1,5 @@
-﻿using DentalClinic.Domain.Common;
+﻿using DentalClinic.Application.Providers;
+using DentalClinic.Domain.Common;
 using DentalClinic.Domain.Entities;
 using DentalClinic.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -9,8 +10,10 @@ namespace DentalClinic.Infrastructure.Repositories
 {
     public class UserRepository: Repository<User>, IUserRepository
     {
-        public UserRepository(DentalClinicDbContext dbContext) : base(dbContext)
+        private readonly ICurrentUserProvider _currentUserProvider;
+        public UserRepository(DentalClinicDbContext dbContext, ICurrentUserProvider currentUserProvider) : base(dbContext)
         {
+            _currentUserProvider = currentUserProvider;
         }
 
         public async Task<(List<User> Users, int TotalCount)> GetStaffPaginatedAsync(
@@ -19,11 +22,12 @@ namespace DentalClinic.Infrastructure.Repositories
             string? searchTerm,
             string? sortBy,
             string? sortDirection,
-            List<int>? roleIds)
+            List<int>? roleIds,
+            List<int>? branchIds)
         {
+            if(_currentUserProvider == null) return (new List<User>(), 0);
+
             var query = _dbSet
-                .Include(u => u.UserRoles!)
-                    .ThenInclude(ur => ur.Role!)
                 .Where(u => u.UserType == UserTypeCodes.Staff.ToString())
                 .AsNoTracking();
 
@@ -33,14 +37,24 @@ namespace DentalClinic.Infrastructure.Repositories
                 query = query.Where(u =>
                     (u.FullName != null && u.FullName.ToLower().Contains(term)) ||
                     (u.Email != null && u.Email.ToLower().Contains(term)) ||
-                    (u.Phone != null && u.Phone.ToLower().Contains(term)) ||
-                    (u.UserRoles != null && u.UserRoles.Any(ur => ur.Role != null && ur.Role.RoleName.ToLower().Contains(term)))
+                    (u.Phone != null && u.Phone.ToLower().Contains(term))
+                );
+            }
+
+            if (branchIds != null && branchIds.Any())
+            {
+                query = query.Where(u =>
+                    u.UserBranches != null &&
+                    u.UserBranches.Any(m => branchIds.Contains(m.BranchId))
                 );
             }
 
             if (roleIds != null && roleIds.Any())
             {
-                query = query.Where(u => u.UserRoles != null && u.UserRoles.Any(ur => roleIds.Contains(ur.RoleId)));
+                query = query.Where(u =>
+                    u.UserBranches != null &&
+                    u.UserBranches.Any(m => roleIds.Contains(m.RoleId))
+                );
             }
 
             if (!string.IsNullOrEmpty(sortBy))
@@ -64,6 +78,10 @@ namespace DentalClinic.Infrastructure.Repositories
             var totalCount = await query.CountAsync();
 
             var users = await query
+                .Include(u => u.UserBranches!)
+                    .ThenInclude(m => m.Branch)
+                .Include(u => u.UserBranches!)
+                    .ThenInclude(m => m.Role)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -71,11 +89,31 @@ namespace DentalClinic.Infrastructure.Repositories
             return (users, totalCount);
         }
 
+        public async Task<User?> GetByIdWithAssignmentsAsync(int id)
+        {
+            return await _dbSet
+                .Include(u => u.UserBranches!)
+                    .ThenInclude(m => m.Branch)
+                .Include(u => u.UserBranches!)
+                    .ThenInclude(m => m.Role)
+                .FirstOrDefaultAsync(u => u.UserId == id);
+        }
+
+        public async Task<IEnumerable<User>> GetAllWithAssignmentsAsync()
+        {
+            return await _dbSet
+                .Where(u => u.UserType == UserTypeCodes.Staff)
+                .Include(u => u.UserBranches!)
+                    .ThenInclude(m => m.Branch)
+                .Include(u => u.UserBranches!)
+                    .ThenInclude(m => m.Role)
+                .ToListAsync();
+        }
+
+
         public async Task<User?> LoginByUsernameAsync(string username)
         {
             return await _dbSet.AsNoTracking()
-                .Include(m => m.UserRoles!)
-                    .ThenInclude(ur => ur.Role!)
                 .FirstOrDefaultAsync(u => u.Username == username);
         }
 
@@ -94,22 +132,16 @@ namespace DentalClinic.Infrastructure.Repositories
         {
             // Get User -> UserRoles -> UserRole
             return await _dbSet
-                        .Include(u => u.UserRoles!)
-                            .ThenInclude(ur => ur.Role!)
                         .ToListAsync();
         }
         public async Task<User?> GetByIdWithRolesAsync(int id)
         {
             return await _dbSet
-                        .Include(u => u.UserRoles!)
-                            .ThenInclude(ur => ur.Role!)
                         .FirstOrDefaultAsync(u => u.UserId == id);
         }
         public async Task<IEnumerable<User>> GetUsersByUserTypeAsync(string userType)
         {
             return await _dbSet
-                        .Include(u => u.UserRoles!)
-                            .ThenInclude(ur => ur.Role!)
                         .Where(u => u.UserType == userType)
                         .ToListAsync();
         }
