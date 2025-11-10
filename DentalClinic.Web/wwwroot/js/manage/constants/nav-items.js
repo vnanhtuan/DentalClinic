@@ -69,12 +69,17 @@
         roles: ['Admin'],
         children: [
             {
-                title: 'Quản lý Vai trò',
+                title: 'Quản lý chi nhánh',
+                icon: 'mdi-home-group',
+                route: { name: 'BranchList' },
+                value: 'branch-list'
+            },
+            {
+                title: 'Quản lý vai trò',
                 icon: 'mdi-calendar-check',
                 route: { name: 'RoleList' },
                 value: 'role-list'
             }
-            
         ]
     },
 ];

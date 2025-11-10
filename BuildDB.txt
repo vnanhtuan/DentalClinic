@@ -1,4 +1,4 @@
-// Generate table to Migrations
+// Generate table to Migrations, run root in DentalClinic.sln folder
 dotnet ef migrations add InitialCreate --project DentalClinic.Infrastructure --startup-project DentalClinic.Web --output-dir Migrations
 //Push to Database in server
 dotnet ef database update --project DentalClinic.Infrastructure --startup-project DentalClinic.Web

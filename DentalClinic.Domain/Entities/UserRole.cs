@@ -11,6 +11,7 @@ namespace DentalClinic.Domain.Entities
         public string? Color { get; set; }
 
         public ICollection<UserRoleMapping>? UserMappings { get; set; }
+        public ICollection<UserBranchMapping>? UserBranchMappings { get; set; }
         public ICollection<RolePermission>? RolePermissions { get; set; }
     }
 }

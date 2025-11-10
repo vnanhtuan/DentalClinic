@@ -85,7 +85,7 @@ export const StaffListComponent = {
             try {
                 this.roles = await staffApi.initForm();
             } catch (err) {
-                this.showErrorDialog('Không thể tải danh sách vai trò.', 'Lỗi tải dữ liệu');
+                this.showErrorDialog('Không thể tải danh sách nhân sự.', 'Lỗi tải dữ liệu');
             }
         },
         async fetchStaffs() {

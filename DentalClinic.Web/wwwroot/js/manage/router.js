@@ -4,6 +4,7 @@ import { LayoutPage } from '../../components/manage/layouts/layout.js';
 import { DashboardPage } from './pages/dashboard.js';
 import { StaffPage, StaffListComponent, StaffFormPage } from '../../components/manage/staffs/staff.js';
 import { SettingsPage, RoleListComponent } from '../../components/manage/roles/role.js';
+import { BranchListComponent, BranchesPage, BranchFormComponent } from '../../components/manage/branchs/branch.js';
 import { userService } from './services/user-service.js';
 
 // 2. ĐỊNH NGHĨA ROUTES (Sạch sẽ)
@@ -102,7 +103,7 @@ const routes = [
                 name: 'Settings',
                 component: SettingsPage, // Temporary, will be replaced later
                 meta: { breadcrumbTitle: 'Cài Đặt Hệ Thống', requiresAuth: true },
-                redirect: { name: 'RoleList' },
+                redirect: { name: 'BranchList' },
                 children: [
                     {
                         path: 'roles', // /manage/settings/roles
@@ -113,6 +114,43 @@ const routes = [
                             requiresAuth: true,
                             parentBreadcrumb: { name: 'Settings', title: 'Cài Đặt Hệ Thống' }
                         }
+                    },
+                    {
+                        path: 'branches', // /manage/settings/branches
+                        name: 'Branch',
+                        component: BranchesPage,
+                        meta: { 
+                            breadcrumbTitle: 'Quản lý Chi nhánh', 
+                            requiresAuth: true,
+                            parentBreadcrumb: { name: 'Settings', title: 'Cài Đặt Hệ Thống' }
+                        },
+                        children: [
+                            {
+                                path: '',
+                                name: 'BranchList',
+                                component: BranchListComponent,
+                                meta: { 
+                                    breadcrumbTitle: 'Danh sách Chi nhánh', requiresAuth: true,
+                                    parentBreadcrumb: { name: 'Settings', title: 'Cài Đặt Hệ Thống' }
+                                },
+                                
+                            },
+                            {
+                                path: 'new',
+                                name: 'BranchCreate',
+                                component: BranchFormComponent,
+                                meta: { breadcrumbTitle: 'Tạo Chi nhánh', requiresAuth: true, 
+                                parentBreadcrumb: { name: 'BranchList', title: 'Danh sách Chi nhánh' } }
+                            },
+                            {
+                                path: ':id/edit',
+                                name: 'BranchEdit',
+                                component: BranchFormComponent,
+                                props: true,
+                                meta: { breadcrumbTitle: 'Chỉnh sửa Chi nhánh', requiresAuth: true, 
+                                parentBreadcrumb: { name: 'BranchList', title: 'Danh sách Chi nhánh' } }
+                            }
+                        ]
                     }
                 ]
             }

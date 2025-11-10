@@ -37,7 +37,7 @@ namespace DentalClinic.Application.Services
             _userRepository.Update(user); 
             await _userRepository.SaveChangesAsync();
 
-            var token = _jwtTokenGenerator.GenerateToken(user);
+            var token = await _jwtTokenGenerator.GenerateTokenAsync(user);
 
             return new LoginResponseDto
             {

@@ -36,6 +36,11 @@ $btn-seconday:#ffb300;
 .border-primary-color {
     border-color: $primary-brand-color !important;
 }
+
+.code-name { 
+    font-size: 12px !important;
+    color: $text-light-grey !important;
+}
 // ----------------------------------------------------
 // END GLOBAL UTILITY CLASSES
 // ----------------------------------------------------
@@ -229,13 +234,13 @@ a.text-primary {
 // ----------------------------------------------------
 // MOBILE STAFF CARDS STYLES
 // ----------------------------------------------------
-.staff-cards-container {
+.staff-cards-container, .branch-cards-container {
     display: flex;
     flex-direction: column;
     gap: 12px;
 }
 
-.staff-card {
+.staff-card, .branch-card {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     border: 1px solid rgba(0, 0, 0, 0.08);
     
@@ -245,7 +250,7 @@ a.text-primary {
     }
 }
 
-.staff-details {
+.staff-details, .branch-details {
     border-top: 1px solid rgba(0, 0, 0, 0.08);
     padding-top: 12px;
     margin-top: 12px;

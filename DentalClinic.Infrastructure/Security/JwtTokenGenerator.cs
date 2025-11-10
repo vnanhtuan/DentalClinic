@@ -1,7 +1,8 @@
 ﻿using DentalClinic.Application.Interfaces;
 using DentalClinic.Domain.Common;
 using DentalClinic.Domain.Entities;
-using Microsoft.Extensions.Configuration;
+using DentalClinic.Domain.Interfaces;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -11,30 +12,50 @@ namespace DentalClinic.Infrastructure.Security
 {
     public class JwtTokenGenerator: IJwtTokenGenerator
     {
-        private readonly IConfiguration _configuration;
-        public JwtTokenGenerator(IConfiguration configuration)
+        private readonly JwtSettings _jwtSettings;
+        private readonly IUserRepository _userRepository;
+        private readonly IBranchRepository _branchRepository;
+        public JwtTokenGenerator(IOptions<JwtSettings> jwtSettings,
+            IUserRepository userRepository,
+            IBranchRepository branchRepository)
         {
-            _configuration = configuration;
+            _jwtSettings = jwtSettings.Value;
+            _userRepository = userRepository;
+            _branchRepository = branchRepository;
         }
-        public string GenerateToken(User user)
+        public async Task<string> GenerateTokenAsync(User user)
         {
-            var secretKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(_configuration["JwtSettings:Secret"]!));
+            var claims = await BuildClaimAsync(user);
+            // Create token
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));
+            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.UtcNow.AddHours(_jwtSettings.ExpirationHours),
+                Issuer = _jwtSettings.Issuer,
+                Audience = _jwtSettings.Audience,
+                SigningCredentials = credentials
+            };
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+
+            return tokenHandler.WriteToken(token);
+        }
+
+        private async Task<List<Claim>> BuildClaimAsync(User user)
+        {
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.UserId.ToString()),
                 new Claim(JwtRegisteredClaimNames.Name, user.FullName),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim("UserType", user.UserType),
-                new Claim(ClaimTypes.Role, user.UserType)
+                new Claim("auth_time", DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString()),
+                new Claim("userTypeCode", user.UserType)
             };
-
-            if (user.UserType == UserTypeCodes.Staff && user.StaffDetail != null)
-            {
-                claims.Add(new Claim("StaffRole", user.StaffDetail.RoleTitle ?? UserTypeCodes.Staff));
-            }
 
             if (user.UserRoles != null)
             {
@@ -43,18 +64,33 @@ namespace DentalClinic.Infrastructure.Security
                     // Add roles (Ex: "Admin", "Manage")
                     // For [Authorize(Roles = "...")]
                     claims.Add(new Claim(ClaimTypes.Role, userRole.Role.RoleName));
+                    claims.Add(new Claim("role", userRole.Role.RoleName));
                 }
             }
 
-            var token = new JwtSecurityToken(
-                issuer: _configuration["JwtSettings:Issuer"],
-                audience: _configuration["JwtSettings:Audience"],
-                claims: claims,
-                expires: DateTime.UtcNow.AddHours(8),
-                signingCredentials: new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256)
-            );
+            if (user.UserType == UserTypeCodes.Staff)
+            {
+                var userBranches = await _branchRepository.GetBranchesByUserIdAsync(user.UserId);
+                foreach (var branch in userBranches)
+                {
+                    claims.Add(new Claim("branchId", branch.BranchId.ToString()));
+                }
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
+                // Optional: Add branch names for display purposes
+                //foreach (var branch in userBranches)
+                //{
+                //    claims.Add(new Claim("branchName", branch.BranchName));
+                //}
+            }
+
+            // Add permissions (if you have a permission system)
+            //var permissions = await _userRepository.GetUserPermissionsAsync(user.UserId);
+            //foreach (var permission in permissions)
+            //{
+            //    claims.Add(new Claim("permission", permission));
+            //}
+
+            return claims;
         }
     }
 }

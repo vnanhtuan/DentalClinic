@@ -19,7 +19,7 @@ export const RoleListComponent = {
             itemToDelete: {},
             headers: [
                 { title: 'STT', key: 'stt', sortable: false, width: '80px' },
-                { title: 'Tên Vai Trò (RoleName)', key: 'name' },
+                { title: 'Tên Vai Trò (Codename)', key: 'name' },
                 { title: 'Mô tả', key: 'description' },
                 { title: 'Hành động', key: 'actions', sortable: false, align: 'end' },],
             roles: [],
@@ -68,7 +68,7 @@ export const RoleListComponent = {
             try {
                 this.roles = await roleApi.getAll();
             } catch (err) {
-                // (Thêm thông báo lỗi)
+               this.showErrorDialog('Không thể tải danh sách vai trò.', 'Lỗi tải dữ liệu');
             } finally {
                 this.loading = false;
             }
@@ -100,7 +100,7 @@ export const RoleListComponent = {
             this.editedRoleId = null;
             // Dùng Object.assign để tạo bản sao, tránh tham chiếu
             this.editedRole = Object.assign({}, this.defaultRole);
-            this.formTitle = 'Tạo mới Vai trò';
+            this.formTitle = 'Tạo mới vai trò';
             this.formError = null;
             this.$refs.roleForm?.resetValidation(); // Reset validation (nếu có)
             this.showFormDialog = true;
@@ -109,7 +109,7 @@ export const RoleListComponent = {
             this.editedRoleId = item.roleId;
             // Dùng Object.assign để copy item vào form, tránh thay đổi list
             this.editedRole = Object.assign({}, item);
-            this.formTitle = 'Chỉnh sửa Vai trò';
+            this.formTitle = 'Chỉnh sửa vai trò';
             this.formError = null;
             this.$refs.roleForm?.resetValidation();
             this.showFormDialog = true;
