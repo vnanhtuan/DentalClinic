@@ -40,13 +40,13 @@
         value: 'treatments',
         roles: ['Admin', 'Staff']
     },
-    {
-        title: 'Hóa Đơn & Tài Chính',
-        icon: 'mdi-currency-usd',
-        route: '/manage/finance', // Giả định route này chưa định nghĩa name
-        value: 'finance',
-        roles: ['Admin', 'Accountant']
-    },
+    // {
+    //     title: 'Hóa Đơn & Tài Chính',
+    //     icon: 'mdi-currency-usd',
+    //     route: '/manage/finance', // Giả định route này chưa định nghĩa name
+    //     value: 'finance',
+    //     roles: ['Admin', 'Accountant']
+    // },
     {
         title: 'Quản Lý Kho Vật Tư',
         icon: 'mdi-package-variant',

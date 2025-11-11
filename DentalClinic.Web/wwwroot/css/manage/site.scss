@@ -9,6 +9,8 @@ $text-light-grey: #666;
 
 $btn-seconday:#ffb300;
 
+$background-style-1: #efefef; // Nền cho bảng và form
+
 // ----------------------------------------------------
 // GLOBAL UTILITY CLASSES
 // ----------------------------------------------------
@@ -393,7 +395,7 @@ a.text-primary {
 // ADD YOUR CUSTOM STYLES BELOW
 // ----------------------------------------------------
 .table-style-1 {
-    background-color: #efefef;
+    background-color: $background-style-1;
     padding: 20px;
     border-radius: 4px;
 
@@ -450,6 +452,16 @@ a.text-primary {
     .v-data-table tbody tr:hover {
         // !important là cần thiết để ghi đè style của Vuetify
         background: rgba(58, 110, 213, 0.1) !important; 
+    }
+}
+.form-style-1 {
+    background-color: $background-style-1 !important;
+    .v-input__control {
+        background-color: $background-light;
+
+        .v-selection-control {
+            background-color: $background-style-1
+        }
     }
 }
 
