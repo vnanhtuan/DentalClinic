@@ -1,7 +1,7 @@
-﻿using DentalClinic.Application.DTOs.Branches;
-using DentalClinic.Application.DTOs.Roles;
+﻿using DentalClinic.Application.Modules.Branches.DTOs;
+using DentalClinic.Application.Modules.Roles.DTOs;
 
-namespace DentalClinic.Application.DTOs.Staffs
+namespace DentalClinic.Application.Modules.Staffs.DTOs
 {
     public class StaffDto
     {
@@ -13,6 +13,7 @@ namespace DentalClinic.Application.DTOs.Staffs
         public string RoleColor { get; set; } = string.Empty;
         public string Username { get; set; } = string.Empty;
         public bool IsActive { get; set; }
+        public bool HasActiveAssignments { get; set; }
         public DateTime CreatedAt { get; set; }
 
         public List<RoleDto> Roles { get; set; } = [];

@@ -1,8 +1,8 @@
-﻿using DentalClinic.Application.DTOs.Branches;
-using DentalClinic.Application.DTOs.Roles;
+﻿using DentalClinic.Application.Modules.Branches.DTOs;
+using DentalClinic.Application.Modules.Roles.DTOs;
 using System.ComponentModel.DataAnnotations;
 
-namespace DentalClinic.Application.DTOs.Staffs
+namespace DentalClinic.Application.Modules.Staffs.DTOs
 {
     public class StaffUpdateDto
     {
@@ -15,6 +15,7 @@ namespace DentalClinic.Application.DTOs.Staffs
         public string Email { get; set; } = string.Empty;
 
         public string? Phone { get; set; }
+        public bool IsActive { get; set; }
 
         public List<int> RoleIds { get; set; } = [];
         public List<int> BranchIds { get; set; } = [];

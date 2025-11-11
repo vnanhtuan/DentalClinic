@@ -1,5 +1,18 @@
 ﻿<v-card class="pa-4" rounded="lg">
-    <v-card-title class="text-h6">{{ formTitle }}</v-card-title>
+    <v-card-title class="d-flex align-center justify-space-between">
+        <span class="text-h6">{{ formTitle }}</span>
+        <div v-if="isEditMode" class="d-flex align-center">
+            <v-label for="status-switch" class="me-2 text-body-2">Trạng thái:</v-label>
+            <v-switch
+                id="status-switch"
+                v-model="staff.isActive"
+                :label="staff.isActive ? 'Đang hoạt động' : 'Đã khóa'"
+                color="success"
+                inset
+                hide-details
+            ></v-switch>
+        </div>
+    </v-card-title>
     <v-card-text>
         <v-form @submit.prevent="saveStaff" ref="staffForm">
             <v-row>
@@ -7,8 +20,18 @@
                     <v-text-field label="Họ và Tên" v-model="staff.fullName" variant="outlined"
                         :rules="[rules.required]"></v-text-field>
                     <v-select label="Chi nhánh" v-model="staff.branchIds" :items="branches" item-title="branchName"
-                        item-value="branchId" variant="outlined" required multiple chips :rules="[rules.requiredBranches]"
+                        item-value="branchId" variant="outlined" required multiple chips closable-chips :rules="[rules.requiredBranches]"
                         placeholder="Chọn một chi nhánh" class="mb-4">
+
+                        <template v-slot:item="{ props, item }">
+                            <v-list-item 
+                                v-bind="props"
+                                :title="item.raw.branchName"
+                                :subtitle="!item.raw.isActive ? 'Đã vô hiệu' : null"
+                                :disabled="!item.raw.isActive"
+                                
+                            ></v-list-item>
+                        </template>
                     </v-select>
                     <v-text-field label="Tên đăng nhập" v-model="staff.username" variant="outlined"
                         :rules="[rules.required]" :disabled="isEditMode"></v-text-field>

@@ -1,5 +1,6 @@
-﻿using DentalClinic.Application.DTOs.Roles;
+﻿using DentalClinic.Application.DTOs.Common;
 using DentalClinic.Application.Interfaces.Roles;
+using DentalClinic.Application.Modules.Roles.DTOs;
 using DentalClinic.Domain.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,6 +18,13 @@ namespace DentalClinic.Web.Areas.Manage.Controllers
         public RoleController(IRoleService roleService)
         {
             _roleService = roleService;
+        }
+
+        [HttpGet("getpaginated")]
+        public async Task<IActionResult> GetPaginatedRole([FromQuery] BasePagingParams pagingParams)
+        {
+            var roles = await _roleService.GetRolePaginatedAsync(pagingParams);
+            return Ok(roles);
         }
 
         [HttpGet]

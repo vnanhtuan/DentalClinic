@@ -1,14 +1,16 @@
 ﻿import api from '../../../js/utils/api.js';
 import { handleApiError } from '../../../js/utils/errorHandler.js';
+import { urlEncodeParams } from '../../../js/utils/formatters.js';
 
 const API_URL = '/role';
 
 export const roleApi = {
-    async getAll() {
+    async getPaginated(params) {
         try {
-            const response = await api.get(API_URL);
+            const response = await api.get(`${API_URL}/getpaginated?${urlEncodeParams(params)}`);
             return response.data;
         } catch (error) {
+            console.error('Role API error:', error);
             throw new Error(handleApiError(error));
         }
     },

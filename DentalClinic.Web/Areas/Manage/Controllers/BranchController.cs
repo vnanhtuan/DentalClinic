@@ -1,5 +1,6 @@
-using DentalClinic.Application.DTOs.Branches;
+using DentalClinic.Application.DTOs.Common;
 using DentalClinic.Application.Interfaces.Branches;
+using DentalClinic.Application.Modules.Branches.DTOs;
 using DentalClinic.Domain.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,6 +18,13 @@ namespace DentalClinic.Web.Areas.Manage.Controllers
         public BranchController(IBranchService branchService)
         {
             _branchService = branchService;
+        }
+
+        [HttpGet("getpaginated")]
+        public async Task<IActionResult> GetPaginatedBranch([FromQuery] BasePagingParams pagingParams)
+        {
+            var branches = await _branchService.GetBranchPaginatedAsync(pagingParams);
+            return Ok(branches);
         }
 
         // GET: api/Branch

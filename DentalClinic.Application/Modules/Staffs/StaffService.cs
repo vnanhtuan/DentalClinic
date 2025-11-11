@@ -1,14 +1,14 @@
-﻿using DentalClinic.Application.DTOs.Branches;
-using DentalClinic.Application.DTOs.Common;
-using DentalClinic.Application.DTOs.Roles;
-using DentalClinic.Application.DTOs.Staffs;
+﻿using DentalClinic.Application.DTOs.Common;
 using DentalClinic.Application.Interfaces;
 using DentalClinic.Application.Interfaces.Staffs;
+using DentalClinic.Application.Modules.Branches.DTOs;
+using DentalClinic.Application.Modules.Roles.DTOs;
+using DentalClinic.Application.Modules.Staffs.DTOs;
 using DentalClinic.Domain.Common;
 using DentalClinic.Domain.Entities;
 using DentalClinic.Domain.Interfaces;
 
-namespace DentalClinic.Application.Services.Staffs
+namespace DentalClinic.Application.Modules.Staffs
 {
     public class StaffService : IStaffService
     {
@@ -27,7 +27,7 @@ namespace DentalClinic.Application.Services.Staffs
             _mappingRepository = mappingRepository;
             _passwordHasher = passwordHasher;
         }
-        public async Task<PagingResponse<StaffDto>> GetStaffPaginatedAsync(PagingParams pagingParams)
+        public async Task<PagingResponse<StaffDto>> GetStaffPaginatedAsync(StaffPagingParams pagingParams)
         {
             var (users, totalItems) = await _userRepository.GetStaffPaginatedAsync(
                 pagingParams.PageNumber,
@@ -132,6 +132,7 @@ namespace DentalClinic.Application.Services.Staffs
             user.FullName = dto.FullName;
             user.Email = dto.Email;
             user.Phone = dto.Phone ?? "";
+            user.IsActive = dto.IsActive;
             user.UserBranches ??= [];
 
             SyncUserAssignments(user, dto.BranchIds, dto.RoleIds);
@@ -176,6 +177,8 @@ namespace DentalClinic.Application.Services.Staffs
         {
             var assignments = user.UserBranches ?? [];
 
+            bool hasActiveAssignments = assignments.Any(m => m.IsActive && m.Branch.IsActive);
+
             return new StaffDto
             {
                 Id = user.UserId,
@@ -184,6 +187,7 @@ namespace DentalClinic.Application.Services.Staffs
                 Phone = user.Phone,
                 Username = user.Username,
                 IsActive = user.IsActive,
+                HasActiveAssignments = hasActiveAssignments,
                 CreatedAt = user.CreatedAt,
 
                 Branches = assignments
@@ -192,7 +196,8 @@ namespace DentalClinic.Application.Services.Staffs
                     .Select(b => new BranchDto
                     {
                         BranchId = b.BranchId,
-                        BranchName = b.BranchName
+                        BranchName = b.BranchName,
+                        IsActive = b.IsActive
                     }).ToList(),
 
                 Roles = assignments

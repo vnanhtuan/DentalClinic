@@ -1,5 +1,6 @@
-using DentalClinic.Application.DTOs.Branches;
+using DentalClinic.Application.DTOs.Common;
 using DentalClinic.Application.Interfaces.Branches;
+using DentalClinic.Application.Modules.Branches.DTOs;
 using DentalClinic.Application.Providers;
 using DentalClinic.Domain.Entities;
 using DentalClinic.Domain.Interfaces;
@@ -23,6 +24,18 @@ namespace DentalClinic.Application.Services.Branches
             _cache = cache;
         }
 
+        public async Task<PagingResponse<BranchDto>> GetBranchPaginatedAsync(BasePagingParams pagingParams)
+        {
+            var branches = await GetAllBranchesAsync();
+
+            return new PagingResponse<BranchDto>(
+                [.. branches],
+                branches.Count(),
+                pagingParams.PageNumber,
+                pagingParams.PageSize
+            );
+        }
+
         public async Task<IEnumerable<BranchDto>> GetAllBranchesAsync()
         {
             if (_cache.TryGetValue(AllBranchesCacheKey, out List<BranchDto>? cachedBranches) && cachedBranches != null)
@@ -30,7 +43,7 @@ namespace DentalClinic.Application.Services.Branches
                 return cachedBranches;
             }
             var branches = await _branchRepository.GetAllAsync();
-            var branchDtos = branches.Select(MapToDto).ToList();
+            var branchDtos = branches.Select(MapBranchToBranchDto).ToList();
 
             var cacheEntryOptions = new MemoryCacheEntryOptions()
                 .SetAbsoluteExpiration(TimeSpan.FromHours(1));
@@ -47,7 +60,7 @@ namespace DentalClinic.Application.Services.Branches
                 return cachedBranches;
             }
             var branches = await _branchRepository.GetActiveBranchesAsync();
-            var branchDtos = branches.Select(MapToDto).ToList();
+            var branchDtos = branches.Select(MapBranchToBranchDto).ToList();
 
             var cacheEntryOptions = new MemoryCacheEntryOptions()
                 .SetAbsoluteExpiration(TimeSpan.FromHours(1));
@@ -60,19 +73,19 @@ namespace DentalClinic.Application.Services.Branches
         public async Task<BranchDto?> GetBranchByIdAsync(int branchId)
         {
             var branch = await _branchRepository.GetByIdAsync(branchId);
-            return branch != null ? MapToDto(branch) : null;
+            return branch != null ? MapBranchToBranchDto(branch) : null;
         }
 
         public async Task<BranchDto?> GetBranchByCodeAsync(string branchCode)
         {
             var branch = await _branchRepository.GetByBranchCodeAsync(branchCode);
-            return branch != null ? MapToDto(branch) : null;
+            return branch != null ? MapBranchToBranchDto(branch) : null;
         }
 
         public async Task<BranchDto?> GetMainBranchAsync()
         {
             var branch = await _branchRepository.GetMainBranchAsync();
-            return branch != null ? MapToDto(branch) : null;
+            return branch != null ? MapBranchToBranchDto(branch) : null;
         }
 
         public async Task<BranchDto> CreateBranchAsync(CreateBranchDto dto)
@@ -96,7 +109,7 @@ namespace DentalClinic.Application.Services.Branches
 
             InvalidateBranchesCache();
 
-            return MapToDto(branch);
+            return MapBranchToBranchDto(branch);
         }
 
         public async Task<bool> UpdateBranchAsync(int branchId, UpdateBranchDto dto)
@@ -162,7 +175,7 @@ namespace DentalClinic.Application.Services.Branches
         public async Task<IEnumerable<BranchDto>> GetBranchesByUserAsync(int userId)
         {
             var branches = await _branchRepository.GetBranchesByUserAsync(userId);
-            return branches.Select(MapToDto);
+            return branches.Select(MapBranchToBranchDto);
         }
 
         public async Task<IEnumerable<UserBranchDto>> GetUserBranchMappingsAsync(int userId)
@@ -192,7 +205,7 @@ namespace DentalClinic.Application.Services.Branches
             return await _branchRepository.RemoveUserFromBranchAsync(userId, branchId, roleId);
         }
 
-        private static BranchDto MapToDto(Branch branch)
+        private static BranchDto MapBranchToBranchDto(Branch branch)
         {
             return new BranchDto
             {

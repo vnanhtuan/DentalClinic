@@ -1,6 +1,7 @@
 import { branchApi } from './branch-api.js';
 import { MessageDialogMixin } from '../../../js/manage/mixins/messageDialogMixin.js';
 import { PAGE_SIZE_OPTIONS, DEFAULT_PAGE_SIZE } from '../../../js/manage/constants/paginationConstants.js';
+import { PaginationComponent } from '../../../js/manage/components/paginationComp.js';
 
 const branchListResponse = await fetch('/components/manage/branchs/branchList.html');
 const branchListHtml = await branchListResponse.text();
@@ -14,7 +15,9 @@ export const BranchesPage = {
 export const BranchListComponent = {
     template: branchListHtml,
     mixins: [MessageDialogMixin],
-
+    components: {
+        'pagination-comp': PaginationComponent
+    },
     data() {
         return {
             loading: true,
@@ -34,6 +37,7 @@ export const BranchListComponent = {
             currentPage: 1,
             pageSize: DEFAULT_PAGE_SIZE,
             pageSizeOptions: PAGE_SIZE_OPTIONS,
+
             formError: null,
             rules: {
                 required: v => !!v || 'Tên chi nhánh là bắt buộc.',
@@ -45,32 +49,36 @@ export const BranchListComponent = {
         isMobile() {
             return this.$vuetify.display.smAndDown;
         },
-
         // filtered list according to statusFilter
         filteredBranches() {
             if (!this.branches) return [];
             if (this.statusFilter === 'active') return this.branches.filter(b => b.isActive);
             if (this.statusFilter === 'inactive') return this.branches.filter(b => !b.isActive);
             return this.branches;
+        }
+    },
+    watch: {
+        currentPage() {
+            this.fetchRoles();
         },
-        fromItem() {
-            if (!this.filteredBranches || this.filteredBranches.length === 0) return 0;
-            return (this.currentPage - 1) * this.pageSize + 1;
-        },
-        toItem() {
-            if (!this.filteredBranches || this.filteredBranches.length === 0) return 0;
-            // show end index for current page (may be less than pageSize)
-            const end = (this.currentPage - 1) * this.pageSize + this.pageSize;
-            return Math.min(end, this.totalItems);
+        pageSize() {
+            this.currentPage = 1;
+            this.fetchBranches();
         }
     },
     methods: {
         async fetchBranches() {
             this.loading = true;
             try {
-                this.branches = await branchApi.getAll();
-                // keep currentPage valid
-                if (this.currentPage > this.totalPages) this.currentPage = this.totalPages || 1;
+                const params = {
+                    pageNumber: this.currentPage,
+                    pageSize: this.pageSize,
+                    searchTerm: this.searchQuery || ''
+                };
+                const response = await branchApi.getPaginated(params);
+                this.branches = response.items || [];
+                this.totalItems = response.totalItems || 0;
+                this.totalPages = response.totalPages || 0;
             } catch (err) {
                 this.showErrorDialog('Không thể tải danh sách chi nhánh.', 'Lỗi tải dữ liệu');
             } finally {

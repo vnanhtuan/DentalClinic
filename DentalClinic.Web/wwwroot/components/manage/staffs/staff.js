@@ -1,6 +1,7 @@
 ﻿import { staffApi } from './staff-api.js';
 import { MessageDialogMixin } from '../../../js/manage/mixins/messageDialogMixin.js';
 import { PAGE_SIZE_OPTIONS, DEFAULT_PAGE_SIZE } from '../../../js/manage/constants/paginationConstants.js';
+import { PaginationComponent } from '../../../js/manage/components/paginationComp.js';
 
 const staffListResponse = await fetch('/components/manage/staffs/staffList.html');
 const staffListHtml = await staffListResponse.text();
@@ -16,6 +17,9 @@ export const StaffPage = {
 export const StaffListComponent = {
     template: staffListHtml,
     mixins: [MessageDialogMixin],
+    components: {
+        'pagination-comp': PaginationComponent
+    },
     data() {
         return {
             loading: true,
@@ -47,43 +51,11 @@ export const StaffListComponent = {
     computed: {
         isMobile() {
             return this.$vuetify.display.smAndDown;
-        },
-        // Calculate 1-based range of displayed items for UI: fromItem..toItem
-        fromItem() {
-            // If no items on current page, show 0
-            if (!this.staffs || this.staffs.length === 0) return 0;
-            return (this.currentPage - 1) * this.pageSize + 1;
-        },
-        toItem() {
-            if (!this.staffs || this.staffs.length === 0) return 0;
-            // Use staffs.length so it still works if totalItems isn't provided
-            return (this.currentPage - 1) * this.pageSize + this.staffs.length;
         }
     }, 
     watch: {
         currentPage() {
             this.fetchStaffs();
-        },
-        pageSize() {
-            this.currentPage = 1;
-            this.fetchStaffs();
-        },
-        selectedRoleIds() {
-            // Reset to first page when role filter changes
-            this.currentPage = 1;
-            this.fetchStaffs();
-        },
-        selectedBranchIds(){
-            this.currentPage = 1;
-            this.fetchStaffs();
-        },
-        searchQuery() {
-            // Debounce search - wait 500ms after user stops typing
-            clearTimeout(this.searchTimeout);
-            this.searchTimeout = setTimeout(() => {
-                this.currentPage = 1;
-                this.fetchStaffs();
-            }, 500);
         }
     },
     methods: {
@@ -122,9 +94,18 @@ export const StaffListComponent = {
                 this.loading = false;
             }
         },
+        triggerFilterChange() {
+            clearTimeout(this.searchTimeout);
+            this.searchTimeout = setTimeout(() => {
+                this.currentPage = 1;
+                this.fetchStaffs();
+            }, 500);
+        },
         clearFilters() {
             this.searchQuery = '';
             this.selectedRoleIds = [];
+            this.selectedBranchIds = [];
+            this.triggerFilterChange();
         },
         hasActiveFilters() {
             return (this.searchQuery && this.searchQuery.length > 0) || 
@@ -158,6 +139,24 @@ export const StaffListComponent = {
                     'Lỗi xóa dữ liệu'
                 );
             }
+        },
+        getStatusColor(item) {
+            if (!item.isActive) {
+                return 'grey';
+            }
+            if (!item.hasActiveAssignments) {
+                return 'warning';
+            }
+            return 'success';
+        },
+        getStatusText(item) {
+            if (!item.isActive) {
+                return 'Đã khóa';
+            }
+            if (!item.hasActiveAssignments) {
+                return 'Chưa phân công';
+            }
+            return 'Đang hoạt động';
         }
     },
     mounted() {
@@ -175,7 +174,13 @@ export const StaffFormPage = {
             loading: false,
             staffId: this.$route.params.id || null,
             staff: {
-                fullName: '', email: '', phone: '', roleId: null, branchIds: [], username: '', password: ''
+                fullName: '', 
+                email: '', 
+                phone: '', 
+                roleIds: [], 
+                branchIds: [], 
+                username: '', 
+                password: ''
             },
             roles: [],
             branches: [],
@@ -221,7 +226,8 @@ export const StaffFormPage = {
                     phone: data.phone,
                     roleIds: data.roles.map(r => r.roleId),
                     branchIds: data.branches.map(b => b.branchId),
-                    username: data.username
+                    username: data.username,
+                    isActive: data.isActive
                 };
             } catch (err) {
                 this.showErrorDialog('Không thể tải dữ liệu nhân sự.', 'Lỗi tải dữ liệu');
@@ -246,6 +252,7 @@ export const StaffFormPage = {
                         fullName: this.staff.fullName,
                         email: this.staff.email,
                         phone: this.staff.phone,
+                        isActive: this.staff.isActive,
                         roleIds: this.staff.roleIds,
                         branchIds: this.staff.branchIds
                     };

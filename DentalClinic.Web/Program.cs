@@ -2,11 +2,11 @@ using DentalClinic.Application.Interfaces;
 using DentalClinic.Application.Interfaces.Branches;
 using DentalClinic.Application.Interfaces.Roles;
 using DentalClinic.Application.Interfaces.Staffs;
+using DentalClinic.Application.Modules.Roles;
+using DentalClinic.Application.Modules.Staffs;
 using DentalClinic.Application.Providers;
 using DentalClinic.Application.Services;
 using DentalClinic.Application.Services.Branches;
-using DentalClinic.Application.Services.Roles;
-using DentalClinic.Application.Services.Staffs;
 using DentalClinic.Domain.Interfaces;
 using DentalClinic.Infrastructure;
 using DentalClinic.Infrastructure.Providers;
@@ -15,7 +15,6 @@ using DentalClinic.Infrastructure.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.Security.Claims;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -35,7 +34,6 @@ builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IBranchRepository, BranchRepository>();
 builder.Services.AddScoped<IUserBranchMappingRepository, UserBranchMappingRepository>();
-
 
 // Services
 builder.Services.AddScoped<IAuthService, AuthService>();

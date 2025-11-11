@@ -1,10 +1,11 @@
-﻿using DentalClinic.Application.DTOs.Roles;
+﻿using DentalClinic.Application.DTOs.Common;
 using DentalClinic.Application.Interfaces.Roles;
+using DentalClinic.Application.Modules.Roles.DTOs;
 using DentalClinic.Domain.Entities;
 using DentalClinic.Domain.Interfaces;
 using Microsoft.Extensions.Caching.Memory;
 
-namespace DentalClinic.Application.Services.Roles
+namespace DentalClinic.Application.Modules.Roles
 {
     public class RoleService: IRoleService
     {
@@ -21,6 +22,17 @@ namespace DentalClinic.Application.Services.Roles
             _userBranchMappingrepository = userBranchMappingrepository;
             _cache = cache;
         }
+        public async Task<PagingResponse<RoleDto>> GetRolePaginatedAsync(BasePagingParams pagingParams)
+        {
+            var roles = await GetAllRolesAsync();
+
+            return new PagingResponse<RoleDto>(
+                [..roles],
+                roles.Count(),
+                pagingParams.PageNumber,
+                pagingParams.PageSize
+            );
+        }
 
         public async Task<IEnumerable<RoleDto>> GetAllRolesAsync()
         {
@@ -29,14 +41,8 @@ namespace DentalClinic.Application.Services.Roles
                 return cachedRoles;
             }
             var roles = await _roleRepository.GetAllAsync();
-            var roleDtos = roles
-                .Select(role => new RoleDto
-                {
-                    RoleId = role.RoleId,
-                    Name = role.RoleName,
-                    Color = role.Color,
-                    Description = role.Description,
-                }).ToList();
+            var roleDtos = roles.Select(MapRoleToRoleDto).ToList();
+
             var cacheEntryOptions = new MemoryCacheEntryOptions()
                 .SetAbsoluteExpiration(TimeSpan.FromHours(1));
 
@@ -112,6 +118,16 @@ namespace DentalClinic.Application.Services.Roles
             await _roleRepository.SaveChangesAsync();
 
             InvalidateRolesCache();
+        }
+        private RoleDto MapRoleToRoleDto(UserRole user)
+        {
+            return new RoleDto
+            {
+                Name = user.RoleName,
+                RoleId = user.RoleId,
+                Color = user.Color,
+                Description = user.Description
+            };
         }
 
         private void InvalidateRolesCache()

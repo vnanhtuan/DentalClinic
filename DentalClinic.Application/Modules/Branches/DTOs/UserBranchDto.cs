@@ -1,4 +1,4 @@
-namespace DentalClinic.Application.DTOs.Branches
+namespace DentalClinic.Application.Modules.Branches.DTOs
 {
     public class UserBranchDto
     {

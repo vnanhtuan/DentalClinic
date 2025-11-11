@@ -14,7 +14,9 @@
         <!-- Data Table (Desktop và Mobile dùng chung vì ít cột) -->
         <div v-else class="scrollable-card-text">
             <v-data-table :headers="headers" :items="roles" item-value="roleId" class="elevation-1" :loading="loading"
-                loading-text="Đang tải dữ liệu..." no-data-text="Không tìm thấy vai trò nào" :items-per-page="pageSize"
+                loading-text="Đang tải dữ liệu..." no-data-text="Không tìm thấy vai trò nào" 
+                hide-default-footer
+                :items-per-page="pageSize"
                 density="comfortable" hover>
 
                 <template v-slot:item.stt="{ index }">
@@ -41,6 +43,16 @@
                             </template>
                         </v-tooltip>
                     </div>
+                </template>
+
+                <template v-slot:bottom>
+                    <!-- Desktop Pagination -->
+                    <pagination-comp
+                        v-model:currentPage="currentPage" 
+                        v-model:pageSize="pageSize"
+                        :total-items="totalItems"
+                        :page-size-options="pageSizeOptions"
+                    ></pagination-comp>
                 </template>
             </v-data-table>
         </div>

@@ -17,7 +17,9 @@
         <!-- Desktop: Data Table -->
         <div v-else-if="!isMobile">
             <v-data-table :headers="headers" :items="filteredBranches" item-value="branchId" class="elevation-1" :loading="loading"
-                loading-text="Đang tải dữ liệu..." no-data-text="Không tìm thấy chi nhánh" :items-per-page="pageSize"
+                loading-text="Đang tải dữ liệu..." no-data-text="Không tìm thấy chi nhánh" 
+                hide-default-footer
+                :items-per-page="pageSize"
                 density="comfortable">
 
                 <template v-slot:item.stt="{ index }">
@@ -27,7 +29,13 @@
                 <template v-slot:item.branchName="{ item }">
                     <div class="d-flex flex-column">
                         <div>{{ item.branchName }}</div>
-                        <div class="code-name">Mã: {{ item.branchCode }}</div>
+                        <v-chip v-if="item.branchCode"
+                            color="text-grey-lighten-1" 
+                            :text="`Mã: ${item.branchCode}`"
+                            size="x-small" 
+                            class="mt-1 text-truncate"
+                            style="max-width: fit-content;">
+                        </v-chip>
                     </div>
                 </template>
 
@@ -81,6 +89,16 @@
                         </v-tooltip>
                     </div>
                 </template>
+
+                <template v-slot:bottom>
+                    <!-- Desktop Pagination -->
+                    <pagination-comp
+                        v-model:currentPage="currentPage" 
+                        v-model:pageSize="pageSize"
+                        :total-items="totalItems"
+                        :page-size-options="pageSizeOptions"
+                    ></pagination-comp>
+                </template>
             </v-data-table>
         </div>
 
@@ -131,18 +149,12 @@
             </v-card>
 
             <!-- Mobile Pagination -->
-            <div v-if="totalPages > 0" class="mt-4">
-                <div class="d-flex justify-center align-center ga-2 mb-3">
-                    <span class="text-body-2">Hiển thị:</span>
-                    <v-select v-model="pageSize" :items="pageSizeOptions" variant="outlined" density="compact"
-                        hide-details style="max-width: 80px;"></v-select>
-                    <span class="text-body-2">Kết quả: {{ fromItem }} - {{ toItem }} / {{ totalItems }}</span>
-                </div>
-                <div class="d-flex justify-center">
-                    <v-pagination v-model="currentPage" :length="totalPages" :total-visible="5"
-                        density="comfortable"></v-pagination>
-                </div>
-            </div>
+            <pagination-comp
+                v-model:currentPage="currentPage" 
+                v-model:pageSize="pageSize"
+                :total-items="totalItems"
+                :page-size-options="pageSizeOptions"
+            ></pagination-comp>
         </div>
     </v-card-text>
 

@@ -1,14 +1,16 @@
 import api from '../../../js/utils/api.js';
 import { handleApiError } from '../../../js/utils/errorHandler.js';
+import { urlEncodeParams } from '../../../js/utils/formatters.js';
 
 const API_URL = '/branch';
 
 export const branchApi = {
-    async getAll() {
+    async getPaginated(params) {
         try {
-            const response = await api.get(API_URL);
+            const response = await api.get(`${API_URL}/getpaginated?${urlEncodeParams(params)}`);
             return response.data;
         } catch (error) {
+            console.error('Branch API error:', error);
             throw new Error(handleApiError(error));
         }
     },

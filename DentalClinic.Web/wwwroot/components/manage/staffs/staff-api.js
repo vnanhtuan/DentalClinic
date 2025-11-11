@@ -1,24 +1,13 @@
 ﻿import api from '../../../js/utils/api.js';
 import { handleApiError } from '../../../js/utils/errorHandler.js';
+import { urlEncodeParams } from '../../../js/utils/formatters.js';
 
 const API_URL = '/staff';
 
 export const staffApi = {
     async getPaginated(params) {
         try {
-            const qp = new URLSearchParams();
-            if (params) {
-                Object.keys(params).forEach(key => {
-                    const value = params[key];
-                    if (value === undefined || value === null) return;
-                    if (Array.isArray(value)) {
-                        value.forEach(v => qp.append(key, v));
-                    } else {
-                        qp.append(key, value);
-                    }
-                });
-            }
-            const response = await api.get(`${API_URL}/getpaginated?${qp.toString()}`);
+            const response = await api.get(`${API_URL}/getpaginated?${urlEncodeParams(params)}`);
             return response.data;
         } catch (error) {
             console.error('Staff API error:', error);

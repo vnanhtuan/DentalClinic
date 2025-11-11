@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace DentalClinic.Application.DTOs.Roles
+namespace DentalClinic.Application.Modules.Roles.DTOs
 {
     public class RoleCreateUpdateDto
     {

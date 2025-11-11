@@ -1,6 +1,7 @@
 ﻿import { roleApi } from './role-api.js';
 import { MessageDialogMixin } from '../../../js/manage/mixins/messageDialogMixin.js';
 import { PAGE_SIZE_OPTIONS, DEFAULT_PAGE_SIZE } from '../../../js/manage/constants/paginationConstants.js';
+import { PaginationComponent } from '../../../js/manage/components/paginationComp.js';
 
 const roleListResponse = await fetch('/components/manage/roles/roleList.html');
 const roleListHtml = await roleListResponse.text();
@@ -12,7 +13,9 @@ export const SettingsPage = {
 export const RoleListComponent = {
     template: roleListHtml,
     mixins: [MessageDialogMixin],
-
+    components: {
+        'pagination-comp': PaginationComponent
+    },
     data() {
         return {
             loading: true,
@@ -25,6 +28,9 @@ export const RoleListComponent = {
             roles: [],
             pageSize: DEFAULT_PAGE_SIZE,
             pageSizeOptions: PAGE_SIZE_OPTIONS,
+            totalItems: 0,
+            totalPages: 0,
+            currentPage: 1,
 
             // DIALOGS FORM
             showFormDialog: false,
@@ -56,17 +62,27 @@ export const RoleListComponent = {
         }
     },
     watch: {
-        // pageSize watcher placeholder - if role list switches to server-side pagination, uncomment
-        // pageSize() {
-        //     this.currentPage = 1;
-        //     this.fetchRoles();
-        // }
+        currentPage() {
+            this.fetchRoles();
+        },
+        pageSize() {
+            this.currentPage = 1;
+            this.fetchRoles();
+        }
     },
     methods: {
         async fetchRoles() {
             this.loading = true;
             try {
-                this.roles = await roleApi.getAll();
+                const params = {
+                    pageNumber: this.currentPage,
+                    pageSize: this.pageSize,
+                    searchTerm: this.searchQuery || ''
+                };
+                const response = await roleApi.getPaginated(params);
+                this.roles = response.items || [];
+                this.totalItems = response.totalItems || 0;
+                this.totalPages = response.totalPages || 0;
             } catch (err) {
                this.showErrorDialog('Không thể tải danh sách vai trò.', 'Lỗi tải dữ liệu');
             } finally {

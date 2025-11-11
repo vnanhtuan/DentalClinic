@@ -1,11 +1,10 @@
-﻿using DentalClinic.Application.DTOs.Common;
-using DentalClinic.Application.DTOs.Staffs;
-using DentalClinic.Application.Interfaces.Staffs;
+﻿using DentalClinic.Application.Interfaces.Staffs;
 using DentalClinic.Application.Interfaces.Roles;
 using DentalClinic.Domain.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using DentalClinic.Application.Interfaces.Branches;
+using DentalClinic.Application.Modules.Staffs.DTOs;
 
 namespace DentalClinic.Web.Areas.Manage.Controllers
 {
@@ -27,7 +26,7 @@ namespace DentalClinic.Web.Areas.Manage.Controllers
         }
 
         [HttpGet("getpaginated")]
-        public async Task<IActionResult> GetPaginatedStaff([FromQuery] PagingParams pagingParams)
+        public async Task<IActionResult> GetPaginatedStaff([FromQuery] StaffPagingParams pagingParams)
         {
             var staffs = await _staffService.GetStaffPaginatedAsync(pagingParams);
             return Ok(staffs);
@@ -37,7 +36,7 @@ namespace DentalClinic.Web.Areas.Manage.Controllers
         public async Task<ActionResult<IEnumerable<StaffInitDto>>> GetInit()
         {
             var roles = await _roleService.GetAllRolesAsync();
-            var branches = await _branchService.GetActiveBranchesAsync();
+            var branches = await _branchService.GetAllBranchesAsync();
 
             return Ok(new StaffInitDto
             { 

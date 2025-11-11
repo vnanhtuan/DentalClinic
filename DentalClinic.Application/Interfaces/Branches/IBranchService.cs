@@ -1,9 +1,11 @@
-using DentalClinic.Application.DTOs.Branches;
+using DentalClinic.Application.DTOs.Common;
+using DentalClinic.Application.Modules.Branches.DTOs;
 
 namespace DentalClinic.Application.Interfaces.Branches
 {
     public interface IBranchService
     {
+        Task<PagingResponse<BranchDto>> GetBranchPaginatedAsync(BasePagingParams pagingParams);
         Task<IEnumerable<BranchDto>> GetAllBranchesAsync();
         Task<IEnumerable<BranchDto>> GetActiveBranchesAsync();
         Task<BranchDto?> GetBranchByIdAsync(int branchId);
