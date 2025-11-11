@@ -272,33 +272,7 @@ a.text-primary {
     margin: 0 2px;
 }
 
-@media (max-width: 600px) {
-    .staff-cards-container {
-        gap: 8px;
-    }
-    
-    .staff-card {
-        .v-card-text {
-            padding: 12px 16px !important;
-        }
-        
-        .text-h6 {
-            font-size: 1.1rem !important;
-            line-height: 1.3;
-        }
-        
-        .v-chip {
-            font-size: 0.75rem !important;
-            height: 24px !important;
-        }
-        
-        .v-btn {
-            min-width: 36px !important;
-            width: 36px !important;
-            height: 36px !important;
-        }
-    }
-}
+
 // ----------------------------------------------------
 // END MOBILE STAFF CARDS
 // ----------------------------------------------------
@@ -381,23 +355,15 @@ a.text-primary {
     }
 }
 
-// Responsive user info
-@media (max-width: 960px) {
-    .v-app-bar .user-info {
-        display: none;
-    }
-}
-// ----------------------------------------------------
-// END USER AVATAR AND MENU STYLES
-// ----------------------------------------------------
-
 // ----------------------------------------------------
 // ADD YOUR CUSTOM STYLES BELOW
 // ----------------------------------------------------
 .table-style-1 {
     background-color: $background-style-1;
-    padding: 20px;
-    border-radius: 4px;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
 
     .v-data-table {
         border-collapse: separate;
@@ -450,10 +416,11 @@ a.text-primary {
     // }
 
     .v-data-table tbody tr:hover {
-        // !important là cần thiết để ghi đè style của Vuetify
         background: rgba(58, 110, 213, 0.1) !important; 
     }
 }
+
+
 .form-style-1 {
     background-color: $background-style-1 !important;
     .v-input__control {
@@ -465,3 +432,130 @@ a.text-primary {
     }
 }
 
+/////////////////////////////////////////////
+/// ICON ADD CUSTOMER
+/// ////////////////////////////////////////
+/* Vòng sáng iOS spotlight quay quanh icon “Thêm khách hàng” */
+.fast-add-customer-wrapper {
+  /* KHUNG ICON */
+  --spot-size: 44px;       /* đường kính vòng quay */
+  --thickness: 3px;        /* bề dày vệt sáng */
+  --glow: rgba(255, 229, 180,.9); /* màu vàng spotlight */
+  --halo: rgba(255,214,10,.25);
+
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  line-height: 1; /* giữ icon canh giữa mượt */
+}
+
+.fast-add-customer-wrapper::before {
+  /* vòng halo mờ tĩnh để tạo chiều sâu */
+  content: "";
+  position: absolute;
+  inset: calc(-1 * (var(--spot-size) - 24px) / 2); /* canh theo size icon 24px */
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.12) inset,
+    0 0 12px var(--halo);
+  pointer-events: none;
+}
+
+.fast-add-customer-wrapper::after {
+  /* vệt sáng nhỏ (spotlight) quay tròn */
+  content: "";
+  position: absolute;
+  top: 50%; left: 50%;
+  width: var(--spot-size);
+  height: var(--spot-size);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+
+  /* tạo 1 cung sáng nhỏ bằng conic-gradient */
+  background:
+    conic-gradient(
+      from 0turn,
+      transparent 0turn .78turn,   /* vùng trong suốt */
+      var(--glow) .20turn .20turn, /* vệt sáng hẹp */
+      transparent 1turn
+    );
+
+  /* khoét rỗng phần trong để chỉ còn “vệt trên vòng” */
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(50% - var(--thickness)), #000 calc(50% - var(--thickness)));
+  mask:         radial-gradient(farthest-side, transparent calc(50% - var(--thickness)), #000 calc(50% - var(--thickness)));
+
+  filter: drop-shadow(0 0 6px var(--glow));
+  animation: spin-spot 1.2s linear infinite;
+  pointer-events: none;
+}
+
+/* quay đều vệt sáng */
+@keyframes spin-spot {
+  from { transform: translate(-50%, -50%) rotate(0turn); }
+  to   { transform: translate(-50%, -50%) rotate(1turn); }
+}
+
+/* tôn trọng người dùng giảm chuyển động */
+@media (prefers-reduced-motion: reduce) {
+  .fast-add-customer-wrapper::after { animation-duration: 2.4s; }
+}
+
+
+
+// Tablet and small laptop adjustments
+@media (max-width: 1200px) {
+    .table-container {
+        .v-data-table {
+            font-size: 0.875rem;
+            
+            .v-data-table__td,
+            .v-data-table__th {
+                padding: 0 8px !important;
+            }
+        }
+    }
+}
+
+// Medium screens
+@media (max-width: 960px) {
+    .v-app-bar .user-info {
+        display: none;
+    }
+    .table-style-1 {
+        padding: 8px !important;
+    }
+    
+    .table-container {
+        .v-data-table {
+            font-size: 0.8125rem;
+        }
+    }
+}
+
+@media (max-width: 600px) {
+    .staff-cards-container {
+        gap: 8px;
+    }
+    
+    .staff-card {
+        .v-card-text {
+            padding: 12px 16px !important;
+        }
+        
+        .text-h6 {
+            font-size: 1.1rem !important;
+            line-height: 1.3;
+        }
+        
+        .v-chip {
+            font-size: 0.75rem !important;
+            height: 24px !important;
+        }
+        
+        .v-btn {
+            min-width: 36px !important;
+            width: 36px !important;
+            height: 36px !important;
+        }
+    }
+}

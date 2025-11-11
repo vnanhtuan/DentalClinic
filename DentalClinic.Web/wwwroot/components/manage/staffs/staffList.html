@@ -1,171 +1,168 @@
-﻿<v-card class="pa-4 table-style-1" rounded="lg">
-    <v-card-title class="d-flex flex-column flex-sm-row justify-space-between align-start align-sm-center ga-3">
+﻿<div class="table-container pa-4 rounded-lg table-style-1">
+    <div class="d-flex flex-column flex-md-row align-start align-sm-start ga-3 mb-4">
         <span class="text-h6">Danh sách Nhân sự</span>
         <v-btn color="primary" @click="goToCreate" class="btn-primary" prepend-icon="mdi-account-plus">
             <span class="d-none d-sm-inline">Thêm Nhân sự Mới</span>
             <span class="d-inline d-sm-none">Thêm</span>
         </v-btn>
-    </v-card-title> <v-card-text class="pa-0 pa-sm-4">
-        <!-- Loading State -->
-        <v-skeleton-loader v-if="loading" type="table" class="mx-auto"></v-skeleton-loader>
+    </div>
 
-        <!-- Desktop: Data Table -->
-        <div v-else-if="!isMobile">
-            <!-- Search bar + Role filter for desktop -->
-            <div class="d-flex flex-column flex-sm-row align-center ga-3 mb-4">
-                <v-text-field v-model="searchQuery" label="Tìm kiếm tên, email, sđt" prepend-inner-icon="mdi-magnify"
-                    variant="outlined" density="compact" class="flex-grow-1 mb-3 mb-sm-0" hide-details clearable
-                    @update:model-value="triggerFilterChange"></v-text-field>
+    <!-- Loading state -->
+    <v-skeleton-loader v-if="loading" type="table" class="mx-auto"></v-skeleton-loader>
 
-                <v-select v-model="selectedBranchIds" :items="branches" item-title="branchName" item-value="branchId"
-                    label="Lọc theo chi nhánh" multiple chips clearable variant="outlined" density="compact"
-                    hide-details style="min-width:220px; max-width:320px;"
-                    @update:model-value="triggerFilterChange"></v-select>
+    <!-- Desktop table -->
+    <template v-else-if="!isMobile">
+        <div class="d-flex flex-column flex-sm-row align-center ga-3 mb-4">
+            <!-- Search -->
+            <v-text-field v-model="searchQuery" label="Tìm kiếm tên, email, sđt" prepend-inner-icon="mdi-magnify"
+                variant="outlined" density="compact" class="flex-grow-1 mb-3 mb-sm-0" hide-details clearable
+                @update:model-value="triggerFilterChange"></v-text-field>
 
-                <v-select v-model="selectedRoleIds" :items="roles" item-title="name" item-value="roleId"
-                    label="Lọc theo vai trò" multiple chips clearable variant="outlined" density="compact" hide-details
-                    style="min-width:220px; max-width:320px;" @update:model-value="triggerFilterChange"></v-select>
+            <!-- Filters -->
+            <v-select v-model="selectedBranchIds" :items="branches" item-title="branchName" item-value="branchId"
+                label="Lọc theo chi nhánh" multiple chips clearable variant="outlined" density="compact" hide-details
+                style="min-width:220px; max-width:320px;" @update:model-value="triggerFilterChange"></v-select>
 
-                <div class="d-flex align-center ms-3">
-                    <div v-if="hasActiveFilters()" class="d-flex align-center ga-2">
-                        <v-chip color="primary" size="small">Bộ lọc hoạt động</v-chip>
-                        <v-btn size="small" class="btn-secondary" @click="clearFilters">Xóa bộ lọc</v-btn>
-                    </div>
-                </div>
-            </div>
+            <v-select v-model="selectedRoleIds" :items="roles" item-title="name" item-value="roleId"
+                label="Lọc theo vai trò" multiple chips clearable variant="outlined" density="compact" hide-details
+                style="min-width:220px; max-width:320px;" @update:model-value="triggerFilterChange"></v-select>
 
-            <v-data-table :headers="headers" :items="staffs" item-value="id" class="elevation-1" :loading="loading"
-                loading-text="Đang tải dữ liệu..." no-data-text="Không tìm thấy nhân sự" :items-per-page="pageSize"
-                hide-default-footer density="comfortable">
-
-                <template v-slot:item.stt="{ index }">
-                    <span>{{ (currentPage - 1) * pageSize + index + 1 }}</span>
-                </template>
-
-                <template v-slot:item.fullName="{ item }">
-                    <div class="d-flex flex-column py-2">
-                        <span class="font-weight-bold">{{ item.fullName }}</span>
-                        <v-chip :color="getStatusColor(item)" :text="getStatusText(item)" size="x-small" class="mt-1"
-                            style="max-width: fit-content;">
-                        </v-chip>
-                    </div>
-                </template>
-
-                <template v-slot:item.role="{ item }">
-                    <div class="d-flex flex-wrap ga-1 py-1">
-                        <v-chip v-for="role in item.roles" :key="role.roleId" :color="role.color" size="small">
-                            {{ role.name }}
-                        </v-chip>
-                    </div>
-                </template>
-
-                <!--Cột Hành động (Edit/Delete)-->
-                <template v-slot:item.actions="{ item }">
-                    <div class="d-flex ga-1 justify-end">
-                        <v-tooltip location="top" text="Chỉnh sửa">
-                            <template v-slot:activator="{ props }">
-                                <v-btn v-bind="props" icon="mdi-pencil" variant="text" color="info" size="small"
-                                    @click="goToEdit(item.id)"></v-btn>
-                            </template>
-                        </v-tooltip>
-                        <v-tooltip location="top" text="Xóa">
-                            <template v-slot:activator="{ props }">
-                                <v-btn v-bind="props" icon="mdi-delete" variant="text" color="error" size="small"
-                                    @click="confirmDelete(item)"></v-btn>
-                            </template>
-                        </v-tooltip>
-                    </div>
-                </template>
-                <template v-slot:bottom>
-                    <!-- Desktop Pagination -->
-                    <pagination-comp
-                        v-model:currentPage="currentPage" 
-                        v-model:pageSize="pageSize"
-                        :total-items="totalItems"
-                        :page-size-options="pageSizeOptions"
-                        @pageSizeChanged="triggerFilterChange"
-                    ></pagination-comp>
-                </template>
-            </v-data-table>
-        </div>
-
-        <!-- Mobile: Card Layout -->
-        <div v-else> <!-- Search bar for mobile -->
-            <v-text-field v-model="searchQuery" @update:model-value="triggerFilterChange" label="Tìm kiếm nhân sự..."
-                prepend-inner-icon="mdi-magnify" variant="outlined" density="compact" class="mb-3" hide-details
-                clearable></v-text-field>
-
-            <!-- Branch filter for mobile -->
-            <v-select v-model="selectedBranchIds" @update:model-value="triggerFilterChange" :items="branches"
-                item-title="branchName" item-value="branchId" label="Lọc theo chi nhánh" multiple chips clearable
-                variant="outlined" density="compact" hide-details class="mb-4"></v-select>
-            <!-- Role filter for mobile -->
-            <v-select v-model="selectedRoleIds" @update:model-value="triggerFilterChange" :items="roles"
-                item-title="name" item-value="roleId" label="Lọc theo vai trò" multiple chips clearable
-                variant="outlined" density="compact" hide-details class="mb-4"></v-select>
-
-            <div class="d-flex align-center mb-4">
+            <div class="d-flex align-center ms-3">
                 <div v-if="hasActiveFilters()" class="d-flex align-center ga-2">
                     <v-chip color="primary" size="small">Bộ lọc hoạt động</v-chip>
-                    <v-btn variant="text" size="small" color="primary" @click="clearFilters">Xóa bộ lọc</v-btn>
+                    <v-btn size="small" class="btn-secondary" @click="clearFilters">Xóa bộ lọc</v-btn>
                 </div>
             </div>
-
-            <!-- Staff Cards -->
-            <div v-if="staffs.length > 0" class="staff-cards-container">
-                <v-card v-for="(staff, index) in staffs" :key="staff.id" class="mb-3 staff-card" elevation="2"
-                    rounded="lg">
-                    <v-card-text class="pa-4">
-                        <div class="d-flex justify-space-between align-start mb-3">
-                            <div class="flex-grow-1">
-                                <v-chip color="primary" size="small" class="mr-2">
-                                    #{{ (currentPage - 1) * pageSize + index + 1 }}
-                                </v-chip>
-                                <h3 class="text-h6 font-weight-bold mb-1">{{ staff.fullName }}</h3>
-                                <div class="d-flex flex-wrap ga-1 mb-2">
-                                    <v-chip v-for="role in staff.roles" :key="role.roleId" :color="role.color"
-                                        size="small">
-                                        {{ role.name }}
-                                    </v-chip>
-                                </div>
-                            </div>
-                            <div class="d-flex ga-1 ml-2">
-                                <v-btn icon="mdi-pencil" variant="text" color="info" size="small"
-                                    @click="goToEdit(staff.id)"></v-btn>
-                                <v-btn icon="mdi-delete" variant="text" color="error" size="small"
-                                    @click="confirmDelete(staff)"></v-btn>
-                            </div>
-                        </div>
-
-                        <div class="staff-details">
-                            <div v-if="staff.email" class="d-flex align-center mb-2">
-                                <v-icon icon="mdi-email" size="small" class="mr-2 text-grey-darken-1"></v-icon>
-                                <span class="text-body-2">{{ staff.email }}</span>
-                            </div>
-                            <div v-if="staff.phone" class="d-flex align-center">
-                                <v-icon icon="mdi-phone" size="small" class="mr-2 text-grey-darken-1"></v-icon>
-                                <span class="text-body-2">{{ staff.phone }}</span>
-                            </div>
-                        </div>
-                    </v-card-text>
-                </v-card>
-            </div> <!-- No data message for mobile -->
-            <v-card v-else elevation="1" class="text-center pa-8">
-                <v-icon icon="mdi-account-search" size="64" class="text-grey-lighten-1 mb-4"></v-icon>
-                <p class="text-h6 text-grey-darken-1 mb-2">Không tìm thấy nhân sự</p>
-                <p class="text-body-2 text-grey-darken-1">Thử thay đổi từ khóa tìm kiếm hoặc thêm nhân sự mới</p>
-            </v-card>
-
-            <!-- Mobile Pagination -->
-            <pagination-comp
-                v-model:currentPage="currentPage" 
-                v-model:pageSize="pageSize"
-                :total-items="totalItems"
-                :page-size-options="pageSizeOptions"
-                @pageSizeChanged="triggerFilterChange"
-            ></pagination-comp>
         </div>
-    </v-card-text>
+
+        <v-data-table :headers="headers" :items="staffs" item-value="id" class="elevation-1" :loading="loading"
+            loading-text="Đang tải dữ liệu..." no-data-text="Không tìm thấy nhân sự" :items-per-page="pageSize"
+            hide-default-footer density="comfortable">
+
+            <template v-slot:item.stt="{ index }">
+                <span>{{ (currentPage - 1) * pageSize + index + 1 }}</span>
+            </template>
+
+            <template v-slot:item.fullName="{ item }">
+                <div class="d-flex flex-column py-2">
+                    <span class="font-weight-bold">{{ item.fullName }}</span>
+                    <v-chip :color="getStatusColor(item)" :text="getStatusText(item)" size="x-small" class="mt-1"
+                        style="max-width: fit-content;">
+                    </v-chip>
+                </div>
+            </template>
+
+            <template v-slot:item.role="{ item }">
+                <div class="d-flex flex-wrap ga-1 py-1">
+                    <v-chip v-for="role in item.roles" :key="role.roleId" :color="role.color" size="small">
+                        {{ role.name }}
+                    </v-chip>
+                </div>
+            </template>
+
+            <!--Cột Hành động (Edit/Delete)-->
+            <template v-slot:item.actions="{ item }">
+                <div class="d-flex ga-1 justify-end">
+                    <v-tooltip location="top" text="Chỉnh sửa">
+                        <template v-slot:activator="{ props }">
+                            <v-btn v-bind="props" icon="mdi-pencil" variant="text" color="info" size="small"
+                                @click="goToEdit(item.id)"></v-btn>
+                        </template>
+                    </v-tooltip>
+                    <v-tooltip location="top" text="Xóa">
+                        <template v-slot:activator="{ props }">
+                            <v-btn v-bind="props" icon="mdi-delete" variant="text" color="error" size="small"
+                                @click="confirmDelete(item)"></v-btn>
+                        </template>
+                    </v-tooltip>
+                </div>
+            </template>
+            <!-- <template v-slot:bottom>
+                <pagination-comp v-model:currentPage="currentPage" v-model:pageSize="pageSize"
+                    :total-items="totalItems" :page-size-options="pageSizeOptions"
+                    @pageSizeChanged="triggerFilterChange"></pagination-comp>
+            </template> -->
+        </v-data-table>
+        <pagination-comp
+            v-model:currentPage="currentPage"
+            v-model:pageSize="pageSize"
+            :total-items="totalItems"
+            :page-size-options="pageSizeOptions"
+            @pageSizeChanged="triggerFilterChange"
+        />
+    </template>
+
+
+    <!-- Mobile: Card Layout -->
+    <template v-else> <!-- Search bar for mobile -->
+        <v-text-field v-model="searchQuery" @update:model-value="triggerFilterChange" label="Tìm kiếm nhân sự..."
+            prepend-inner-icon="mdi-magnify" variant="outlined" density="compact" class="mb-3" hide-details clearable>
+        </v-text-field>
+
+        <!-- Branch filter for mobile -->
+        <v-select v-model="selectedBranchIds" @update:model-value="triggerFilterChange" :items="branches"
+            item-title="branchName" item-value="branchId" label="Lọc theo chi nhánh" multiple chips clearable
+            variant="outlined" density="compact" hide-details class="mb-3">
+        </v-select>
+        <!-- Role filter for mobile -->
+        <v-select v-model="selectedRoleIds" @update:model-value="triggerFilterChange" :items="roles" item-title="name"
+            item-value="roleId" label="Lọc theo vai trò" multiple chips clearable variant="outlined" density="compact"
+            hide-details class="mb-3"></v-select>
+
+        <div class="d-flex align-center mb-4">
+            <div v-if="hasActiveFilters()" class="d-flex align-center ga-2">
+                <v-chip color="primary" size="small">Bộ lọc hoạt động</v-chip>
+                <v-btn variant="text" size="small" color="primary" @click="clearFilters">Xóa bộ lọc</v-btn>
+            </div>
+        </div>
+
+        <!-- Staff Cards -->
+        <div v-if="staffs.length > 0" class="staff-cards-container">
+            <v-card v-for="(staff, index) in staffs" :key="staff.id" class="mb-3 staff-card" elevation="2" rounded="lg">
+                <v-card-text class="pa-4">
+                    <div class="d-flex justify-space-between align-start mb-3">
+                        <div class="flex-grow-1">
+                            <v-chip color="primary" size="small" class="mr-2">
+                                #{{ (currentPage - 1) * pageSize + index + 1 }}
+                            </v-chip>
+                            <h3 class="text-h6 font-weight-bold mb-1">{{ staff.fullName }}</h3>
+                            <div class="d-flex flex-wrap ga-1 mb-2">
+                                <v-chip v-for="role in staff.roles" :key="role.roleId" :color="role.color" size="small">
+                                    {{ role.name }}
+                                </v-chip>
+                            </div>
+                        </div>
+                        <div class="d-flex ga-1 ml-2">
+                            <v-btn icon="mdi-pencil" variant="text" color="info" size="small"
+                                @click="goToEdit(staff.id)"></v-btn>
+                            <v-btn icon="mdi-delete" variant="text" color="error" size="small"
+                                @click="confirmDelete(staff)"></v-btn>
+                        </div>
+                    </div>
+
+                    <div class="staff-details">
+                        <div v-if="staff.email" class="d-flex align-center mb-2">
+                            <v-icon icon="mdi-email" size="small" class="mr-2 text-grey-darken-1"></v-icon>
+                            <span class="text-body-2">{{ staff.email }}</span>
+                        </div>
+                        <div v-if="staff.phone" class="d-flex align-center">
+                            <v-icon icon="mdi-phone" size="small" class="mr-2 text-grey-darken-1"></v-icon>
+                            <span class="text-body-2">{{ staff.phone }}</span>
+                        </div>
+                    </div>
+                </v-card-text>
+            </v-card>
+        </div> <!-- No data message for mobile -->
+        <v-card v-else elevation="1" class="text-center pa-8">
+            <v-icon icon="mdi-account-search" size="64" class="text-grey-lighten-1 mb-4"></v-icon>
+            <p class="text-h6 text-grey-darken-1 mb-2">Không tìm thấy nhân sự</p>
+            <p class="text-body-2 text-grey-darken-1">Thử thay đổi từ khóa tìm kiếm hoặc thêm nhân sự mới</p>
+        </v-card>
+
+        <!-- Mobile Pagination -->
+        <pagination-comp v-model:currentPage="currentPage" v-model:pageSize="pageSize" :total-items="totalItems"
+            :page-size-options="pageSizeOptions" @pageSizeChanged="triggerFilterChange"></pagination-comp>
+    </template>
 
     <!-- Message Dialog for confirmations and notifications -->
     <message-dialog v-model="showDialog" :type="dialogConfig.type" :title="dialogConfig.title"
@@ -173,4 +170,5 @@
         :ok-text="dialogConfig.okText" :cancel-text="dialogConfig.cancelText" @ok="dialogConfig.onOk"
         @cancel="dialogConfig.onCancel">
     </message-dialog>
-</v-card>
+
+</div>

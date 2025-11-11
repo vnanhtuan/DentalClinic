@@ -1,115 +1,127 @@
-﻿<v-app>
-    <v-layout> <v-app-bar class="main-app-bar-color">
-            <v-app-bar-nav-icon v-if="isMobile" @click="toggleMobileDrawer"></v-app-bar-nav-icon>
+﻿<v-app-bar class="main-app-bar-color" scroll-behavior="fade-image" app>
+    <v-app-bar-nav-icon v-if="isMobile" @click="toggleMobileDrawer"></v-app-bar-nav-icon>
 
-            <v-app-bar-title class="font-weight-bold">{{ currentRouteTitle }}</v-app-bar-title>
-            <v-spacer></v-spacer>
+    <v-app-bar-title class="font-weight-bold">{{ currentRouteTitle }}</v-app-bar-title>
+    <v-spacer></v-spacer>
 
-            <!-- User Information Section -->
-            <div v-if="currentUser" class="d-flex align-center me-4">
-                <!-- User Avatar -->
-                <v-avatar :color="userAvatarColor" size="40" class="me-3">
-                    <span class="text-white font-weight-bold text-body-2">{{ userInitials }}</span>
-                </v-avatar>
+    <!-- User Information Section -->
+    <div v-if="currentUser" class="d-flex align-center me-4">
+        <v-tooltip location="bottom">
+            <template v-slot:activator="{ props: tooltipProps }">
+                <v-btn v-bind="tooltipProps"
+                        icon
+                        variant="text"
+                        @click="goToCreateCustomer"
+                        class="text-white me-2">
+                    <span class="fast-add-customer-wrapper">
+                        <v-icon size="24">mdi-account-plus</v-icon>
+                    </span>
+                </v-btn>
+            </template>
+            <span>Thêm Khách hàng</span>
+        </v-tooltip>
 
-                <!-- User Info (Hidden on Mobile) -->
-                <div v-if="!isMobile" class="text-white me-3">
-                    <div class="text-body-2 font-weight-bold">{{ currentUser.fullName }}</div>
-                    <v-chip :color="roleInfo.color" size="x-small" variant="flat" :prepend-icon="roleInfo.icon"
-                        class="text-caption">
-                        {{ roleInfo.displayName }}
-                    </v-chip>
-                </div>
+        <!-- User Avatar -->
+        <v-avatar :color="userAvatarColor" size="40" class="me-3">
+            <span class="text-white font-weight-bold text-body-2">{{ userInitials }}</span>
+        </v-avatar>
 
-                <!-- User Menu -->
-                <v-menu>
-                    <template v-slot:activator="{ props }">
-                        <v-btn v-bind="props" icon="mdi-dots-vertical" variant="text" class="text-white"></v-btn>
-                    </template>
-                    <v-list>
-                        <v-list-item>
-                            <v-list-item-title class="d-flex align-center">
-                                <v-icon :icon="roleInfo.icon" class="me-2" :color="roleInfo.color"></v-icon>
-                                <div>
-                                    <div class="font-weight-bold">{{ currentUser.fullName }}</div>
-                                    <div class="text-caption text-medium-emphasis">{{ roleInfo.displayName }}</div>
-                                </div>
-                            </v-list-item-title>
-                        </v-list-item>
-                        <v-divider></v-divider>
-                        <v-list-item @click="showProfile" prepend-icon="mdi-account-circle">
-                            <v-list-item-title>Thông tin cá nhân</v-list-item-title>
-                        </v-list-item>
-                        <v-list-item @click="showSettings" prepend-icon="mdi-cog">
-                            <v-list-item-title>Cài đặt</v-list-item-title>
-                        </v-list-item>
-                        <v-divider></v-divider>
-                        <v-list-item @click="handleLogout" prepend-icon="mdi-logout" class="text-error">
-                            <v-list-item-title>Đăng xuất</v-list-item-title>
-                        </v-list-item>
-                    </v-list>
-                </v-menu>
-            </div>
+        <!-- User Info (Hidden on Mobile) -->
+        <div v-if="!isMobile" class="text-white me-3">
+            <div class="text-body-2 font-weight-bold">{{ currentUser.fullName }}</div>
+            <v-chip :color="roleInfo.color" size="x-small" variant="flat" :prepend-icon="roleInfo.icon"
+                class="text-caption">
+                {{ roleInfo.displayName }}
+            </v-chip>
+        </div>
 
-            <!-- Fallback Logout Button (if no user data) -->
-            <v-tooltip v-else location="bottom">
-                <template v-slot:activator="{ props }">
-                    <v-btn v-bind="props" icon="mdi-logout" @click="handleLogout" class="text-white"></v-btn>
-                </template>
-                <span>Đăng xuất</span>
-            </v-tooltip>
-        </v-app-bar>
-
-        <v-navigation-drawer v-model="drawer" :rail="rail" :temporary="isMobile" :permanent="!isMobile"
-            class="bg-white">
-            <div v-if="!isMobile" class="d-flex justify-end pa-2">
-                <v-btn variant="text" :icon="rail ? 'mdi-chevron-right' : 'mdi-chevron-left'" @click="toggleRail"
-                    color="primary"></v-btn>
-            </div>
-            <v-divider v-if="!isMobile"></v-divider>            
-            
-            <v-list density="compact" nav v-model:opened="openParentValue">
-                <template v-for="item in filteredNavItems" :key="item.title">                      
-                    <!-- 1. Nếu item có children (Menu Cha) -->
-                    <v-list-group v-if="item.children" :value="item.value">
-                        <template v-slot:activator="{ props }">
-                            <v-list-item v-bind="props" :prepend-icon="item.icon" :title="item.title" @click="onToggle(item)"></v-list-item>
-                        </template>
-                        
-                        <!-- Menu Con -->
-                        <router-link v-for="child in item.children" :key="child.title" :to="child.route" custom
-                            v-slot="{ href, navigate, isActive }">
-                            <v-list-item @click="navigate" :active="isNavItemActive(child)" :prepend-icon="child.icon"
-                                :title="child.title" :value="child.value" color="primary"
-                                class="v-list-item-nested"></v-list-item>
-                        </router-link>
-                    </v-list-group> 
-                    
-                    <!-- 2. Nếu item là menu đơn (Không có children) -->
-                    <router-link v-else :to="item.route" custom v-slot="{ href, navigate, isActive, isExactActive }">
-                        <v-list-item @click="navigate" :prepend-icon="item.icon" :title="item.title" :value="item.value"
-                            :active="item.value === 'dashboard' ? isExactActive : isNavItemActive(item)"
-                            color="primary"></v-list-item>
-                    </router-link>
-                </template>
+        <!-- User Menu -->
+        <v-menu>
+            <template v-slot:activator="{ props }">
+                <v-btn v-bind="props" icon="mdi-dots-vertical" variant="text" class="text-white"></v-btn>
+            </template>
+            <v-list>
+                <v-list-item>
+                    <v-list-item-title class="d-flex align-center">
+                        <v-icon :icon="roleInfo.icon" class="me-2" :color="roleInfo.color"></v-icon>
+                        <div>
+                            <div class="font-weight-bold">{{ currentUser.fullName }}</div>
+                            <div class="text-caption text-medium-emphasis">{{ roleInfo.displayName }}</div>
+                        </div>
+                    </v-list-item-title>
+                </v-list-item>
+                <v-divider></v-divider>
+                <v-list-item @click="showProfile" prepend-icon="mdi-account-circle">
+                    <v-list-item-title>Thông tin cá nhân</v-list-item-title>
+                </v-list-item>
+                <v-list-item @click="showSettings" prepend-icon="mdi-cog">
+                    <v-list-item-title>Cài đặt</v-list-item-title>
+                </v-list-item>
+                <v-divider></v-divider>
+                <v-list-item @click="handleLogout" prepend-icon="mdi-logout" class="text-error">
+                    <v-list-item-title>Đăng xuất</v-list-item-title>
+                </v-list-item>
             </v-list>
-        </v-navigation-drawer>
-        <v-main>
-            <v-container fluid class="pa-6">
-                <v-breadcrumbs :items="breadcrumbs" class="pa-0 mb-4 text-caption">
-                    <template v-slot:divider>
-                        <v-icon icon="mdi-chevron-right" size="small"></v-icon>
-                    </template>
-                    <template v-slot:title="{ item }">
-                        <!-- Sử dụng text-primary-color (từ SCSS) cho màu sắc -->
-                        <span :class="{'font-weight-bold text-primary-color': item.disabled}"
-                            @click="!item.disabled ? toggleSidebarParent(item.value) : null">
-                            {{ item.title }}
-                        </span>
-                    </template>
-                </v-breadcrumbs>
-                <router-view></router-view>
-            </v-container>
-        </v-main>
-    </v-layout>
-</v-app>
+        </v-menu>
+    </div>
+
+    <!-- Fallback Logout Button (if no user data) -->
+    <v-tooltip v-else location="bottom">
+        <template v-slot:activator="{ props }">
+            <v-btn v-bind="props" icon="mdi-logout" @click="handleLogout" class="text-white"></v-btn>
+        </template>
+        <span>Đăng xuất</span>
+    </v-tooltip>
+</v-app-bar>
+
+<v-navigation-drawer v-model="drawer" :rail="rail" :temporary="isMobile" :permanent="!isMobile" class="bg-white" app>
+    <div v-if="!isMobile" class="d-flex justify-end pa-2">
+        <v-btn variant="text" :icon="rail ? 'mdi-chevron-right' : 'mdi-chevron-left'" @click="toggleRail"
+            color="primary"></v-btn>
+    </div>
+    <v-divider v-if="!isMobile"></v-divider>
+
+    <v-list density="compact" nav v-model:opened="openParentValue">
+        <template v-for="item in filteredNavItems" :key="item.title">
+            <!-- 1. Nếu item có children (Menu Cha) -->
+            <v-list-group v-if="item.children" :value="item.value">
+                <template v-slot:activator="{ props }">
+                    <v-list-item v-bind="props" :prepend-icon="item.icon" :title="item.title"
+                        @click="onToggle(item)"></v-list-item>
+                </template>
+
+                <!-- Menu Con -->
+                <router-link v-for="child in item.children" :key="child.title" :to="child.route" custom
+                    v-slot="{ href, navigate, isActive }">
+                    <v-list-item @click="navigate" :active="isNavItemActive(child)" :prepend-icon="child.icon"
+                        :title="child.title" :value="child.value" color="primary"
+                        class="v-list-item-nested"></v-list-item>
+                </router-link>
+            </v-list-group>
+
+            <!-- 2. Nếu item là menu đơn (Không có children) -->
+            <router-link v-else :to="item.route" custom v-slot="{ href, navigate, isActive, isExactActive }">
+                <v-list-item @click="navigate" :prepend-icon="item.icon" :title="item.title" :value="item.value"
+                    :active="item.value === 'dashboard' ? isExactActive : isNavItemActive(item)"
+                    color="primary"></v-list-item>
+            </router-link>
+        </template>
+    </v-list>
+</v-navigation-drawer>
+<v-main>
+    <v-container fluid class="pa-6">
+        <v-breadcrumbs :items="breadcrumbs" class="pa-0 mb-4 text-caption">
+            <template v-slot:divider>
+                <v-icon icon="mdi-chevron-right" size="small"></v-icon>
+            </template>
+            <template v-slot:title="{ item }">
+                <!-- Sử dụng text-primary-color (từ SCSS) cho màu sắc -->
+                <span :class="{'font-weight-bold text-primary-color': item.disabled}"
+                    @click="!item.disabled ? toggleSidebarParent(item.value) : null">
+                    {{ item.title }}
+                </span>
+            </template>
+        </v-breadcrumbs>
+        <router-view></router-view>
+    </v-container>
+</v-main>

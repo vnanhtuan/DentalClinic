@@ -1,26 +1,25 @@
-<v-card class="pa-4 table-style-1" rounded="lg">
-    <v-card-title class="d-flex flex-column flex-sm-row justify-space-between align-start align-sm-center ga-3">
+<div class="pa-4 table-style-1" rounded="lg">
+    <div class="d-flex flex-column flex-sm-row align-start align-md-start ga-3 mb-4">
         <div class="d-flex flex-column flex-sm-row align-center ga-3">
             <span class="text-h6 me-4">Danh sách Chi nhánh</span>
+            <v-btn color="primary" @click="goToCreate" class="btn-primary" prepend-icon="mdi-account-plus">
+                <span class="d-none d-sm-inline">Thêm Chi nhánh Mới</span>
+                <span class="d-inline d-sm-none">Thêm</span>
+            </v-btn>
             <v-btn-toggle v-model="statusFilter" class="mt-3 mt-sm-0" color="orange-darken-3" mandatory>
                 <v-btn value="all" variant="outlined" size="small">Tất cả</v-btn>
                 <v-btn value="active" variant="outlined" size="small">Hoạt động</v-btn>
                 <v-btn value="inactive" variant="outlined" size="small">Ngừng hoạt động</v-btn>
             </v-btn-toggle>
         </div>
-        <v-btn color="primary" @click="goToCreate" class="btn-primary" prepend-icon="mdi-account-plus">
-            <span class="d-none d-sm-inline">Thêm Chi nhánh Mới</span>
-            <span class="d-inline d-sm-none">Thêm</span>
-        </v-btn>
-    </v-card-title> <v-card-text class="pa-0 pa-sm-4">
+    </div>
+    <div class="pa-0 pa-sm-4">
         <v-skeleton-loader v-if="loading" type="table" class="mx-auto"></v-skeleton-loader>
         <!-- Desktop: Data Table -->
-        <div v-else-if="!isMobile">
-            <v-data-table :headers="headers" :items="filteredBranches" item-value="branchId" class="elevation-1" :loading="loading"
-                loading-text="Đang tải dữ liệu..." no-data-text="Không tìm thấy chi nhánh" 
-                hide-default-footer
-                :items-per-page="pageSize"
-                density="comfortable">
+        <template v-else-if="!isMobile">
+            <v-data-table :headers="headers" :items="filteredBranches" item-value="branchId" class="elevation-1"
+                :loading="loading" loading-text="Đang tải dữ liệu..." no-data-text="Không tìm thấy chi nhánh"
+                hide-default-footer :items-per-page="pageSize" density="comfortable">
 
                 <template v-slot:item.stt="{ index }">
                     <span>{{ index + 1 }}</span>
@@ -29,12 +28,8 @@
                 <template v-slot:item.branchName="{ item }">
                     <div class="d-flex flex-column">
                         <div>{{ item.branchName }}</div>
-                        <v-chip v-if="item.branchCode"
-                            color="text-grey-lighten-1" 
-                            :text="`Mã: ${item.branchCode}`"
-                            size="x-small" 
-                            class="mt-1 text-truncate"
-                            style="max-width: fit-content;">
+                        <v-chip v-if="item.branchCode" color="text-grey-lighten-1" :text="`Mã: ${item.branchCode}`"
+                            size="x-small" class="mt-1 text-truncate" style="max-width: fit-content;">
                         </v-chip>
                     </div>
                 </template>
@@ -63,14 +58,16 @@
                     <div class="d-flex ga-1 justify-end">
                         <v-tooltip v-if="item.isActive" location="top" text="Ngừng hoạt động">
                             <template v-slot:activator="{ props }">
-                                <v-btn v-bind="props" icon variant="text" color="warning" size="small" @click="toggleActive(item)">
+                                <v-btn v-bind="props" icon variant="text" color="warning" size="small"
+                                    @click="toggleActive(item)">
                                     <v-icon>mdi-power</v-icon>
                                 </v-btn>
                             </template>
                         </v-tooltip>
                         <v-tooltip v-else location="top" text="Kích hoạt">
                             <template v-slot:activator="{ props }">
-                                <v-btn v-bind="props" icon variant="text" color="success" size="small" @click="toggleActive(item)">
+                                <v-btn v-bind="props" icon variant="text" color="success" size="small"
+                                    @click="toggleActive(item)">
                                     <v-icon>mdi-power-plug</v-icon>
                                 </v-btn>
                             </template>
@@ -89,24 +86,17 @@
                         </v-tooltip>
                     </div>
                 </template>
-
-                <template v-slot:bottom>
-                    <!-- Desktop Pagination -->
-                    <pagination-comp
-                        v-model:currentPage="currentPage" 
-                        v-model:pageSize="pageSize"
-                        :total-items="totalItems"
-                        :page-size-options="pageSizeOptions"
-                    ></pagination-comp>
-                </template>
             </v-data-table>
-        </div>
+            <!-- Desktop Pagination -->
+            <pagination-comp v-model:currentPage="currentPage" v-model:pageSize="pageSize" :total-items="totalItems"
+                :page-size-options="pageSizeOptions"></pagination-comp>
+        </template>
 
         <!-- Mobile: Card Layout -->
-        <div v-else>
+        <template v-else>
             <div v-if="filteredBranches.length > 0" class="branch-cards-container">
-                <v-card v-for="(branch, index) in filteredBranches" :key="branch.branchId" class="mb-3 branch-card" elevation="2"
-                    rounded="lg">
+                <v-card v-for="(branch, index) in filteredBranches" :key="branch.branchId" class="mb-3 branch-card"
+                    elevation="2" rounded="lg">
                     <v-card-text class="pa-4">
                         <div class="d-flex justify-space-between align-start mb-3">
                             <div class="flex-grow-1">
@@ -115,7 +105,7 @@
                                 </v-chip>
                                 <h3 class="branch-name mb-1">{{ branch.branchName }}</h3>
                                 <div class="branch-code-mobile mb-2">{{ branch.branchCode }}</div>
-                                
+
                             </div>
                             <div class="d-flex ga-1 ml-2">
                                 <v-btn icon="mdi-pencil" variant="text" color="info" size="small"
@@ -149,14 +139,10 @@
             </v-card>
 
             <!-- Mobile Pagination -->
-            <pagination-comp
-                v-model:currentPage="currentPage" 
-                v-model:pageSize="pageSize"
-                :total-items="totalItems"
-                :page-size-options="pageSizeOptions"
-            ></pagination-comp>
-        </div>
-    </v-card-text>
+            <pagination-comp v-model:currentPage="currentPage" v-model:pageSize="pageSize" :total-items="totalItems"
+                :page-size-options="pageSizeOptions"></pagination-comp>
+        </template>
+    </div>
 
     <!-- Message Dialog for confirmations and notifications -->
     <message-dialog v-model="showDialog" :type="dialogConfig.type" :title="dialogConfig.title"
@@ -164,4 +150,4 @@
         :ok-text="dialogConfig.okText" :cancel-text="dialogConfig.cancelText" @ok="dialogConfig.onOk"
         @cancel="dialogConfig.onCancel">
     </message-dialog>
-</v-card>
+</div>

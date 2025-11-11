@@ -321,6 +321,9 @@ export const LayoutPage = {
             } else {
                 this.openParentValue = [parentValue];
             }
+        },
+        goToCreateCustomer(){
+            
         }
     }
 };

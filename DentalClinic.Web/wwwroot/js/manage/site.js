@@ -4,16 +4,16 @@ import { formatCurrency } from '../utils/formatters.js';
 import { MessageDialogComponent } from './components/messageDialog.js';
 import { MessageDialogMixin } from './mixins/messageDialogMixin.js';
 
-// 2. Định nghĩa Root Component của Admin App
-// Component này sẽ chứa <router-view> cho các trang admin
-// Tạm thời không sử dụng, đã định nghĩa router-view ở _ManageLayout.cshtml
+
 const ManageApp = {
-    template: `
-      <router-view></router-view>
+  template: `
+        <v-app>
+          <router-view></router-view>
+        </v-app>
     `
 };
 
-const app = Vue.createApp({});
+const app = Vue.createApp(ManageApp);
 app.use(vuetify);
 app.use(router);
 
