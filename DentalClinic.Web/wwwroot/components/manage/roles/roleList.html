@@ -1,5 +1,4 @@
-﻿<!-- Bắt đầu file: wwwroot/components/manage/roleList.html -->
-<div class="pa-4 table-style-1" rounded="lg">
+﻿<div class="table-container pa-4 rounded-lg table-style-1" rounded="lg">
     <div class="d-flex flex-column flex-md-row align-start align-sm-start ga-3 mb-4">
         <span class="text-h6">Quản lý vai trò</span>
         <v-btn color="primary" @click="openCreateDialog" class="btn-primary" prepend-icon="mdi-account-lock-outline">
@@ -10,7 +9,6 @@
 
     <div class="pa-0 pa-sm-4">
         <v-skeleton-loader v-if="loading" type="table" class="mx-auto"></v-skeleton-loader>
-
         <!-- Data Table (Desktop và Mobile dùng chung vì ít cột) -->
         <v-data-table :headers="headers" :items="roles" item-value="roleId" class="elevation-1" :loading="loading"
             loading-text="Đang tải dữ liệu..." no-data-text="Không tìm thấy vai trò nào" hide-default-footer
@@ -45,6 +43,7 @@
         <pagination-comp v-model:currentPage="currentPage" v-model:pageSize="pageSize" :total-items="totalItems"
             :page-size-options="pageSizeOptions"></pagination-comp>
     </div>
+
     <message-dialog v-model="showDialog" :type="dialogConfig.type" :title="dialogConfig.title"
         :message="dialogConfig.message" :show-cancel="dialogConfig.showCancel" :loading="dialogConfig.loading"
         :ok-text="dialogConfig.okText" :cancel-text="dialogConfig.cancelText" @ok="dialogConfig.onOk"
@@ -52,17 +51,17 @@
     </message-dialog>
 
     <v-dialog v-model="showFormDialog" max-width="600px" persistent class="dialog-form">
-        <v-card class="rounded-lg">
+        <div class="rounded-lg form-style-2">
             <v-form @submit.prevent="saveRole" ref="roleForm">
-                <v-card-title class="d-flex align-center pa-4">
+                <div class="form-header d-flex align-center pa-4">
                     <v-icon icon="mdi-account-box-edit-outline mdi v-icon" size="24" class="me-3"></v-icon>
                     <span class="text-h6 font-weight-bold">{{ formTitle }}</span>
                     <v-spacer></v-spacer>
                     <v-btn icon="mdi-close" variant="text" size="small" @click="closeFormDialog"
                         :disabled="formLoading">
                     </v-btn>
-                </v-card-title>
-                <v-card-text class="pa-6">
+                </div>
+                <div class="pa-6">
                     <v-container>
                         <v-row>
                             <v-col cols="12" md="8">
@@ -85,18 +84,18 @@
                     <v-alert v-if="formError" type="error" dense class="mt-2" closable @click:close="formError = null">
                         {{ formError }}
                     </v-alert>
-                </v-card-text>
+                </div>
 
-                <v-card-actions class="pa-4 pt-0">
+                <div class="form-footer pa-4 pt-0">
                     <v-spacer></v-spacer>
-                    <v-btn @click="closeFormDialog" variant="outlined" class="me-2">
+                    <v-btn @click="closeFormDialog" class="btn-secondary" variant="elevated">
                         Hủy
                     </v-btn>
-                    <v-btn type="submit" variant="elevated" :loading="formLoading">
-                        Lưu
+                    <v-btn type="submit" color="primary" class="btn-primary mr-2" variant="elevated" :loading="formLoading">
+                        Lưu thay đổi
                     </v-btn>
-                </v-card-actions>
+                </div>
             </v-form>
-        </v-card>
+        </div>
     </v-dialog>
 </div>

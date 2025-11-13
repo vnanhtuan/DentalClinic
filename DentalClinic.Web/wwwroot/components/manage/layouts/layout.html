@@ -124,4 +124,21 @@
         </v-breadcrumbs>
         <router-view></router-view>
     </v-container>
+    <v-dialog 
+        v-model="showPatientForm" 
+        :fullscreen="isMobile" 
+        :max-width="isMobile ? undefined : '80%'" 
+        :height="isMobile ? undefined : '80%'"
+        transition="slide-x-reverse-transition"
+        scrim
+        persistent
+        class="right-sheet"
+        location="right"
+        >
+        <patient-form 
+            v-model:show="showPatientForm" 
+            @patient-created="handlePatientCreated"
+            >
+        </patient-form>
+    </v-dialog>
 </v-main>

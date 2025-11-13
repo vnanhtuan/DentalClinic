@@ -2,13 +2,16 @@
 import { MessageDialogComponent } from '../../../js/manage/components/messageDialog.js';
 import { userService } from '../../../js/manage/services/user-service.js';
 
+import { PatientFormComponent } from '../patients/patient.js'; 
+
 const response = await fetch('/components/manage/layouts/layout.html');
 const templateHtml = await response.text();
 
 export const LayoutPage = {
     template: templateHtml,
     components: {
-        'message-dialog': MessageDialogComponent
+        'message-dialog': MessageDialogComponent,
+        'patient-form': PatientFormComponent,
     },
     data() {
         return {
@@ -19,6 +22,8 @@ export const LayoutPage = {
 
             // Biến state để kiểm soát v-list-group đang mở
             openParentValue: [],
+
+            showPatientForm: false, 
         };
     },
     computed: {
@@ -322,8 +327,14 @@ export const LayoutPage = {
                 this.openParentValue = [parentValue];
             }
         },
-        goToCreateCustomer(){
-            
-        }
+        goToCreateCustomer() {
+            this.showPatientForm = true; // Bật Drawer
+        },
+        handlePatientCreated(newPatientId) {
+            // Có thể thêm logic thông báo tại đây hoặc chuyển hướng đến trang chi tiết bệnh nhân
+            console.log(`Bệnh nhân mới được tạo với ID: ${newPatientId}`);
+            // Tùy chọn: Chuyển hướng đến trang chi tiết bệnh nhân vừa tạo
+            // this.$router.push({ name: 'PatientDetail', params: { id: newPatientId } });
+        },
     }
 };

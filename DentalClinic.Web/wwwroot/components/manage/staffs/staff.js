@@ -16,7 +16,6 @@ export const StaffPage = {
 // 2. Component Danh sách Nhân sự (List)
 export const StaffListComponent = {
     template: staffListHtml,
-    mixins: [MessageDialogMixin],
     components: {
         'pagination-comp': PaginationComponent
     },

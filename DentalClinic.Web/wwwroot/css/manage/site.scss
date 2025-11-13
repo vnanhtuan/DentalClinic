@@ -423,6 +423,48 @@ a.text-primary {
 
 .form-style-1 {
     background-color: $background-style-1 !important;
+    .form-header {
+        margin-bottom: 30px;
+    }
+
+    .form-body {
+    }
+
+    .form-footer {
+        margin: 30px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 15px;
+    }
+
+    .v-input__control {
+        background-color: $background-light;
+
+        .v-selection-control {
+            background-color: $background-style-1
+        }
+    }
+}
+
+.form-style-2 {
+    background-color: $background-style-1 !important;
+
+    .form-header {
+        margin-bottom: 30px;
+        background-color: $gradient-end;
+        border-radius: 8px 8px 0 0 !important;
+    }
+
+    .form-body {
+    }
+
+    .form-footer {
+        margin: 30px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 15px;
+    }
+
     .v-input__control {
         background-color: $background-light;
 

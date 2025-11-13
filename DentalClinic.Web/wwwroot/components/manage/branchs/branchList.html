@@ -1,17 +1,15 @@
-<div class="pa-4 table-style-1" rounded="lg">
-    <div class="d-flex flex-column flex-sm-row align-start align-md-start ga-3 mb-4">
-        <div class="d-flex flex-column flex-sm-row align-center ga-3">
-            <span class="text-h6 me-4">Danh sách Chi nhánh</span>
-            <v-btn color="primary" @click="goToCreate" class="btn-primary" prepend-icon="mdi-account-plus">
-                <span class="d-none d-sm-inline">Thêm Chi nhánh Mới</span>
-                <span class="d-inline d-sm-none">Thêm</span>
-            </v-btn>
-            <v-btn-toggle v-model="statusFilter" class="mt-3 mt-sm-0" color="orange-darken-3" mandatory>
-                <v-btn value="all" variant="outlined" size="small">Tất cả</v-btn>
-                <v-btn value="active" variant="outlined" size="small">Hoạt động</v-btn>
-                <v-btn value="inactive" variant="outlined" size="small">Ngừng hoạt động</v-btn>
-            </v-btn-toggle>
-        </div>
+<div class="table-container pa-4 rounded-lg table-style-1" rounded="lg">
+    <div class="d-flex flex-column flex-sm-row align-center ga-3  mb-4">
+        <span class="text-h6 me-4">Danh sách Chi nhánh</span>
+        <v-btn color="primary" @click="goToCreate" class="btn-primary" prepend-icon="mdi-account-plus">
+            <span class="d-none d-sm-inline">Thêm Chi nhánh Mới</span>
+            <span class="d-inline d-sm-none">Thêm</span>
+        </v-btn>
+        <v-btn-toggle v-model="statusFilter" class="mt-3 mt-sm-0" color="orange-darken-3" mandatory>
+            <v-btn value="all" variant="outlined" size="small">Tất cả</v-btn>
+            <v-btn value="active" variant="outlined" size="small">Hoạt động</v-btn>
+            <v-btn value="inactive" variant="outlined" size="small">Ngừng hoạt động</v-btn>
+        </v-btn-toggle>
     </div>
     <div class="pa-0 pa-sm-4">
         <v-skeleton-loader v-if="loading" type="table" class="mx-auto"></v-skeleton-loader>
