@@ -61,11 +61,11 @@ export const PatientFormComponent = {
             steps: [
                 { value: 1, title: 'Thông tin cơ bản', icon: 'mdi-account-details', isComplete: false, requiredFields: ['fullName', 'phone'] },
                 { value: 2, title: 'Liên hệ', icon: 'mdi-map-marker-account', isComplete: false, requiredFields: ['address'] },
-                { value: 3, title: 'Nhu cầu', icon: 'mdi-map-marker-account', isComplete: false, requiredFields: ['pathology'] },
-                { value: 4, title: 'Tiểu sử bệnh', icon: 'mdi-medical-bag', isComplete: false, requiredFields: ['bloodType'] },
-                { value: 5, title: 'Lịch hẹn', icon: 'mdi-file-check', isComplete: false, requiredFields: ['date'] },
-                { value: 6, title: 'Relative', icon: 'mdi-file-check', isComplete: false, requiredFields: [] },
-                { value: 7, title: 'Marketing', icon: 'mdi-file-check', isComplete: false, requiredFields: ['source'] },
+                { value: 3, title: 'Nhu cầu', icon: 'mdi-target', isComplete: false, requiredFields: ['pathology'] },
+                { value: 4, title: 'Tiểu sử bệnh', icon: 'mdi-history', isComplete: false, requiredFields: ['bloodType'] },
+                { value: 5, title: 'Lịch hẹn', icon: 'mdi-calendar-clock', isComplete: false, requiredFields: ['date'] },
+                { value: 6, title: 'Người thân', icon: 'mdi-account-multiple', isComplete: false, requiredFields: [] },
+                { value: 7, title: 'Marketing', icon: 'mdi-bullhorn', isComplete: false, requiredFields: ['source'] },
             ],
             // Dữ liệu cho Dropdown/Select
             bloodTypes: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'Không rõ'],

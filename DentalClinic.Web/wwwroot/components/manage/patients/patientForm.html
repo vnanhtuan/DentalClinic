@@ -11,6 +11,7 @@
             <!-- Cột 1: Navigation Tabs (Dạng Dọc trên Desktop, Dạng Ngang trên Mobile) -->
             <v-col cols="12" md="3" class="pa-0 pr-md-4">
                 <!-- V-Tabs: direction="vertical" cho Desktop -->
+                 <!--'text-success': isStepCompleted(step.requiredFields) && activeStep !== step.value}"-->
                 <v-tabs 
                     v-model="activeStep" 
                     :direction="isMobile ? 'horizontal' : 'vertical'" 
@@ -19,14 +20,13 @@
                     :slider-size="isMobile ? 2 : 4" 
                     :density="isMobile ? 'compact' : 'default'" 
                     grow>
-                    
                     <v-tab 
                         v-for="(step, index) in steps" 
                         :key="step.value" 
                         :value="step.value"
-                        :class="{'font-weight-bold': activeStep === step.value, 
-                                 'text-success': isStepCompleted(step.requiredFields) && activeStep !== step.value}"
-                        :prepend-icon="isStepCompleted(step.requiredFields) && activeStep !== step.value ? 'mdi-check-circle' : step.icon"
+                        :class="{'font-weight-bold': activeStep === step.value }"
+                        :append-icon="!isStepCompleted(step.requiredFields) && 
+                        activeStep !== step.value ? 'mdi-alert-circle-outline' : ''"
                         >
                         {{ step.title }}
                     </v-tab>
@@ -45,7 +45,6 @@
                         <h6 v-if="!isMobile" class="text-h6 font-weight-bold mb-6 text-primary-color border-b pb-2">
                             {{ step.title }}
                         </h6>
-                        
                         <!-- Basic Info -->
                         <v-row v-if="step.value === 1">
                             <v-col cols="12" md="6">
@@ -114,13 +113,12 @@
                                 chips 
                                 closable-chips></v-autocomplete>
                             </v-col>
-                            <v-col cols="12" md="6">
-                                <v-text-field label="Chi phí dự trù" v-model="patient.estimatedCost" variant="outlined"></v-text-field>
+                            <v-col cols="12">
+                                <v-text-field label="Chi phí dự trù (VND)" v-model="patient.estimatedCost" variant="outlined"></v-text-field>
                             </v-col>
-                            <v-col cols="12" md="6">
+                            <v-col cols="12">
                                 <v-textarea label="Ghi chú nhu cầu" v-model="patient.needsNotes" rows="2" variant="outlined"></v-textarea>
                             </v-col>
-                            
                         </v-row>
                         
                         <v-row v-else-if="step.value === 4">
