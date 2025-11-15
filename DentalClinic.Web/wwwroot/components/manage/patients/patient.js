@@ -30,11 +30,19 @@ export const PatientFormComponent = {
                 gender: null, // M, F, O
 
                 // Step 2: Address & Contact
+                national: null,
                 address: '',
+                otherAddress: '',
                 city: '',
+                district: '',
                 emergencyName: '',
                 emergencyPhone: '',
                 notes: '',
+
+                // Step 3: Needs
+                pathologies: [], // Multi-select
+                intendedTreatments: [], // Multi-select
+                estimatedCost: null,
 
                 // Step 3: Medical History
                 bloodType: null,
@@ -52,15 +60,21 @@ export const PatientFormComponent = {
             // Metadata cho Stepper
             steps: [
                 { value: 1, title: 'Thông tin cơ bản', icon: 'mdi-account-details', isComplete: false, requiredFields: ['fullName', 'phone'] },
-                { value: 2, title: 'Địa chỉ & Liên hệ khẩn cấp', icon: 'mdi-map-marker-account', isComplete: false, requiredFields: ['address'] },
-                { value: 3, title: 'Lịch sử Y tế', icon: 'mdi-medical-bag', isComplete: false, requiredFields: ['bloodType'] },
-                { value: 4, title: 'Bảo hiểm & Hoàn tất', icon: 'mdi-file-check', isComplete: false, requiredFields: ['insuranceProvider'] },
+                { value: 2, title: 'Liên hệ', icon: 'mdi-map-marker-account', isComplete: false, requiredFields: ['address'] },
+                { value: 3, title: 'Nhu cầu', icon: 'mdi-map-marker-account', isComplete: false, requiredFields: ['pathology'] },
+                { value: 4, title: 'Tiểu sử bệnh', icon: 'mdi-medical-bag', isComplete: false, requiredFields: ['bloodType'] },
+                { value: 5, title: 'Lịch hẹn', icon: 'mdi-file-check', isComplete: false, requiredFields: ['date'] },
+                { value: 6, title: 'Relative', icon: 'mdi-file-check', isComplete: false, requiredFields: [] },
+                { value: 7, title: 'Marketing', icon: 'mdi-file-check', isComplete: false, requiredFields: ['source'] },
             ],
             // Dữ liệu cho Dropdown/Select
             bloodTypes: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'Không rõ'],
+            pathologyOptions: ['Vôi răng', 'Khớp cắn ngược', 'Viêm lợi, nhiều cao răng', 'Tái khám', 'Răng hô','Răng thưa'],
+            intendOptions: ['Chỉnh nha', 'Cấy ghép implant', 'Tẩy trắng răng', 'Phục hình răng sứ', 'Điều trị tủy', 'Nhổ răng khôn'],
             allergyOptions: ['Thuốc Penicillin', 'Latex', 'Thức ăn (Hải sản)', 'Khác'],
             occupationOptions: ['Bác sĩ', 'Kỹ sư', 'Học sinh/Sinh viên', 'Nghề nghiệp khác'],
             referralSources: ['Website', 'Google Search', 'Bạn bè', 'Truyền thông', 'Khác'],
+            nationals: ['Việt Nam', 'Hoa Kỳ', 'Canada', 'Úc', 'Anh', 'Pháp', 'Đức', 'Nhật Bản', 'Hàn Quốc', 'Khác'],
             
             // Validation Rules
             rules: {
@@ -81,19 +95,18 @@ export const PatientFormComponent = {
             // Dùng $vuetify.display.smAndDown để bắt responsive
             return this.$vuetify.display.smAndDown;
         },
-        isCurrentStepValid() {
-            // Kiểm tra xem tất cả các fields bắt buộc của step hiện tại đã được điền chưa
-            const currentStepData = this.steps.find(s => s.value === this.activeStep);
-            if (!currentStepData) return false;
+        isSaveDisabled() {
+            // Lấy ra tất cả các trường bắt buộc từ tất cả các bước
+            const allRequiredFields = this.steps.flatMap(step => step.requiredFields);
 
-            for (const field of currentStepData.requiredFields) {
+            for (const field of allRequiredFields) {
                 const value = this.patient[field];
                 // Kiểm tra null, undefined, chuỗi rỗng, hoặc mảng rỗng (cho multi-select)
                 if (value === null || value === undefined || value === '' || (Array.isArray(value) && value.length === 0)) {
-                    return false;
+                    return true; // Nếu thiếu 1 trường, vô hiệu hóa nút Lưu
                 }
             }
-            return true;
+            return false; // Tất cả đã được điền
         },
     },
     watch: {
@@ -105,6 +118,15 @@ export const PatientFormComponent = {
         }
     },
     methods: {
+        isStepCompleted(requiredFields) {
+            for (const field of requiredFields) {
+                const value = this.patient[field];
+                if (value === null || value === undefined || value === '' || (Array.isArray(value) && value.length === 0)) {
+                    return false;
+                }
+            }
+            return true;
+        },
         closeForm() {
             this.$emit('update:show', false);
         },
@@ -112,50 +134,7 @@ export const PatientFormComponent = {
             this.patient = Object.assign({}, this.defaultPatient);
             this.$refs.patientForm?.resetValidation();
             this.error = null;
-        },async validateAndMarkComplete() {
-            // Sử dụng ref của form hiện tại để chạy validation chính xác của Vuetify
-            const formRef = this.$refs['formStep' + this.activeStep];
-            if (formRef) {
-                const { valid } = await formRef.validate();
-                return valid;
-            }
-            // Nếu không có ref, chỉ kiểm tra các field bắt buộc
-            return this.isCurrentStepValid;
         },
-
-        async nextStep() {
-            if (this.loading) return;
-            
-            // 1. Chạy validation chính xác của Vuetify
-            const isValid = await this.validateAndMarkComplete();
-
-            if (isValid) {
-                // 2. Đánh dấu bước hiện tại là hoàn thành
-                this.steps[this.activeStep - 1].isComplete = true;
-
-                // 3. Chuyển sang bước tiếp theo
-                if (this.activeStep < this.steps.length) {
-                    this.activeStep++;
-                }
-            } else {
-                this.showWarningDialog('Vui lòng điền đầy đủ các thông tin bắt buộc trong bước này.', 'Thông tin chưa hợp lệ');
-            }
-        },
-
-        prevStep() {
-            if (this.activeStep > 1) {
-                this.activeStep--;
-            }
-        },
-
-        goToStep(stepValue) {
-            // Nếu click vào bước trước đó hoặc bước hiện tại đã hoàn thành
-            if (stepValue < this.activeStep || this.steps[stepValue - 1].isComplete) {
-                this.activeStep = stepValue;
-            }
-            // Không cho phép nhảy qua bước chưa hoàn thành
-        },
-        
         async savePatient() {
             const { valid } = await this.$refs.patientForm.validate();
             if (!valid) {
@@ -167,6 +146,13 @@ export const PatientFormComponent = {
             this.error = null;
 
             try {
+                const { valid } = await this.$refs.patientForm.validate();
+                if (!valid) {
+                    this.showWarningDialog('Vui lòng kiểm tra lại các trường có lỗi (màu đỏ) trước khi lưu.', 'Thông tin chưa hợp lệ');
+                    this.loading = false;
+                    return;
+                }
+
                 const createDto = {
                     fullName: this.patient.fullName,
                     phone: this.patient.phone,

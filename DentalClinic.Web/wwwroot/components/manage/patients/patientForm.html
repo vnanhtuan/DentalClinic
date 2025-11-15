@@ -1,4 +1,4 @@
-<v-card class="pa-4" rounded="lg">
+<v-card class="pa-4 form-style-2">
     <v-card-title class="d-flex align-center text-h5 font-weight-bold mb-4 border-b pb-4">
         Đăng ký khách hàng
         <v-spacer></v-spacer>
@@ -6,74 +6,37 @@
         <v-btn icon="mdi-close" variant="text" size="small" @click="closeForm" :disabled="loading"></v-btn>
     </v-card-title>
 
+    <v-form @submit.prevent="savePatient" ref="patientForm" class="flex-grow-1 overflow-y-auto">
+        <v-row class="ma-0 pa-0 h-100">
+            <!-- Cột 1: Navigation Tabs (Dạng Dọc trên Desktop, Dạng Ngang trên Mobile) -->
+            <v-col cols="12" md="3" class="pa-0 pr-md-4">
+                <!-- V-Tabs: direction="vertical" cho Desktop -->
+                <v-tabs 
+                    v-model="activeStep" 
+                    :direction="isMobile ? 'horizontal' : 'vertical'" 
+                    :class="{'mb-4': isMobile}" 
+                    color="primary" 
+                    :slider-size="isMobile ? 2 : 4" 
+                    :density="isMobile ? 'compact' : 'default'" 
+                    grow>
+                    
+                    <v-tab 
+                        v-for="(step, index) in steps" 
+                        :key="step.value" 
+                        :value="step.value"
+                        :class="{'font-weight-bold': activeStep === step.value, 
+                                 'text-success': isStepCompleted(step.requiredFields) && activeStep !== step.value}"
+                        :prepend-icon="isStepCompleted(step.requiredFields) && activeStep !== step.value ? 'mdi-check-circle' : step.icon"
+                        >
+                        {{ step.title }}
+                    </v-tab>
+                </v-tabs>
+            </v-col>
 
-    <v-row class="ma-0 pa-0">
-        <!-- Cột 1: Navigation Tabs (Dạng Dọc trên Desktop, Dạng Ngang trên Mobile) -->
-        <v-col cols="12" md="3" class="pa-0 pr-md-4">
-            <!-- V-Tabs: direction="vertical" cho Desktop -->
-            <v-tabs 
-                v-model="activeStep" 
-                :direction="isMobile ? 'horizontal' : 'vertical'" 
-                :class="{'mb-4': isMobile}" 
-                color="primary" 
-                :slider-size="isMobile ? 2 : 4" 
-                :density="isMobile ? 'compact' : 'default'" 
-                grow>
-                
-                <v-tab 
-                    v-for="(step, index) in steps" 
-                    :key="step.value" 
-                    :value="step.value"
-                    :disabled="step.value > 1 && !steps[step.value - 2].isComplete && step.value !== activeStep"
-                    @click="goToStep(step.value)"
-                    :class="{'font-weight-bold': activeStep === step.value, 
-                             'text-success': steps[index].isComplete && activeStep !== step.value}"
-                    :prepend-icon="steps[index].isComplete && activeStep !== step.value ? 'mdi-check-circle' : step.icon"
-                    >
-                    {{ step.title }}
-                </v-tab>
-            </v-tabs>
-            
-            <!-- Hiển thị lại nút Back/Next/Save ở dưới các tab trên Mobile -->
-            <div v-if="isMobile" class="pa-4 pt-0 d-flex justify-space-between bg-grey-lighten-5 rounded-lg mb-4">
-                 <v-btn v-if="activeStep > 1" 
-                       @click="prevStep" 
-                       variant="outlined" 
-                       color="secondary" 
-                       prepend-icon="mdi-arrow-left"
-                       size="small">
-                    Quay lại
-                </v-btn>
-                <v-spacer v-else></v-spacer>
-                
-                <v-btn v-if="activeStep < steps.length"
-                       @click="nextStep"
-                       color="primary"
-                       :loading="loading"
-                       prepend-icon="mdi-arrow-right"
-                       :disabled="!isCurrentStepValid"
-                       size="small">
-                    Tiếp theo
-                </v-btn>
-                
-                <v-btn v-else
-                       @click="savePatient"
-                       color="success"
-                       :loading="loading"
-                       prepend-icon="mdi-content-save-all"
-                       size="small">
-                    Lưu thông tin
-                </v-btn>
-            </div>
-            
-        </v-col>
-
-        <!-- Cột 2: Form Content (Sử dụng v-window) -->
-        <v-col cols="12" md="9" class="pa-0 pl-md-4">
-            <!-- SỬA: Thay thế Stepper Window bằng V-Window và thêm transition -->
-            <v-window v-model="activeStep" mandatory class="pa-4 elevation-2 rounded-lg" :touch="{ left: nextStep, right: prevStep }">
-                
-                <v-form :ref="'formStep' + activeStep" @submit.prevent="savePatient">
+            <!-- Cột 2: Form Content (Sử dụng v-window) -->
+            <v-col cols="12" md="9" class="pa-0 pl-md-4">
+                <v-window v-model="activeStep" mandatory class="pa-4 elevation-2 h-100" disable-swipe>
+                    
                     <v-window-item v-for="step in steps" :key="step.value" :value="step.value" 
                                     transition="slide-x-transition" 
                                     reverse-transition="slide-x-reverse-transition">
@@ -83,10 +46,23 @@
                             {{ step.title }}
                         </h6>
                         
-                        <!-- Form Fields -->
+                        <!-- Basic Info -->
                         <v-row v-if="step.value === 1">
                             <v-col cols="12" md="6">
                                 <v-text-field label="Họ và Tên (*)" v-model="patient.fullName" variant="outlined" :rules="[rules.required]"></v-text-field>
+                            </v-col>
+                            <v-col cols="12" md="6">
+                                <v-text-field label="Tên khác" v-model="patient.otherName" variant="outlined"></v-text-field>
+                            </v-col>
+                            <v-col cols="12" md="6">
+                                <v-text-field label="Ngày sinh (YYYY-MM-DD)" v-model="patient.dateOfBirth" type="date" variant="outlined"></v-text-field>
+                            </v-col>
+                            <v-col cols="12" md="6">
+                                <v-radio-group label="Giới tính" v-model="patient.gender" class="v-input-selecttion-custom" inline>
+                                    <v-radio label="Nam" value="M"></v-radio>
+                                    <v-radio label="Nữ" value="F"></v-radio>
+                                    <v-radio label="Khác" value="O"></v-radio>
+                                </v-radio-group>
                             </v-col>
                             <v-col cols="12" md="6">
                                 <v-text-field label="Số điện thoại (*)" v-model="patient.phone" variant="outlined" :rules="[rules.required, rules.phone]"></v-text-field>
@@ -95,49 +71,56 @@
                                 <v-text-field label="Email" v-model="patient.email" variant="outlined" :rules="[rules.email]"></v-text-field>
                             </v-col>
                             <v-col cols="12" md="6">
-                                <v-text-field label="Ngày sinh" v-model="patient.dateOfBirth" type="date" variant="outlined"></v-text-field>
-                            </v-col>
-                            <v-col cols="12">
-                                <v-radio-group label="Giới tính" v-model="patient.gender" inline>
-                                    <v-radio label="Nam" value="M"></v-radio>
-                                    <v-radio label="Nữ" value="F"></v-radio>
-                                    <v-radio label="Khác" value="O"></v-radio>
-                                </v-radio-group>
+                                <v-text-field label="CCCD/ID" v-model="patient.identify" variant="outlined"></v-text-field>
                             </v-col>
                         </v-row>
                         
                         <v-row v-else-if="step.value === 2">
-                            <v-col cols="12" md="8">
-                                <v-text-field label="Địa chỉ (*)" v-model="patient.address" variant="outlined" :rules="[rules.required]"></v-text-field>
+                            <v-col cols="12" md="4">
+                                <v-select label="Quốc gia (*)" v-model="patient.national" :items="nationals" variant="outlined" :rules="[rules.required]"></v-select>
                             </v-col>
                             <v-col cols="12" md="4">
                                 <v-text-field label="Thành phố/Tỉnh" v-model="patient.city" variant="outlined"></v-text-field>
+                            </v-col>
+                            <v-col cols="12" md="4">
+                                <v-text-field label="Phường/Xã" v-model="patient.district" variant="outlined"></v-text-field>
+                            </v-col>
+                            <v-col cols="12">
+                                <v-text-field label="Địa chỉ (*)" v-model="patient.address" variant="outlined" :rules="[rules.required]"></v-text-field>
+                            </v-col>
+                            <v-col cols="12">
+                                <v-text-field label="Địa chỉ khác" v-model="patient.address" variant="outlined"></v-text-field>
                             </v-col>
                             <v-col cols="12" md="6">
                                 <v-text-field label="Người liên hệ khẩn cấp" v-model="patient.emergencyName" variant="outlined"></v-text-field>
                             </v-col>
                             <v-col cols="12" md="6">
-                                <v-text-field label="SĐT người liên hệ khẩn cấp" v-model="patient.emergencyPhone" variant="outlined" :rules="[rules.phone]"></v-text-field>
-                            </v-col>
-                            <v-col cols="12">
-                                <v-textarea label="Ghi chú về tiền sử" v-model="patient.notes" rows="2" variant="outlined"></v-textarea>
+                                <v-text-field label="SĐT người liên hệ khẩn cấp" v-model="patient.emergencyPhone" variant="outlined"></v-text-field>
                             </v-col>
                         </v-row>
                         
                         <v-row v-else-if="step.value === 3">
-                            <v-col cols="12" md="6">
-                                <v-select label="Nhóm máu (*)" v-model="patient.bloodType" :items="bloodTypes" variant="outlined" :rules="[rules.required]"></v-select>
+                             <v-col cols="12" md="6">
+                                <v-autocomplete label="Bệnh lý" v-model="patient.pathologies" :items="pathologyOptions" variant="outlined" 
+                                filterable 
+                                multiple 
+                                chips 
+                                closable-chips></v-autocomplete>
                             </v-col>
                             <v-col cols="12" md="6">
-                                <v-select label="Tiền sử dị ứng (Chọn nhiều)" v-model="patient.allergies" :items="allergyOptions" variant="outlined" multiple chips closable-chips></v-select>
+                                <v-autocomplete label="Quan tâm" v-model="patient.intendedTreatments" :items="intendOptions" variant="outlined" 
+                                filterable 
+                                multiple 
+                                chips 
+                                closable-chips></v-autocomplete>
                             </v-col>
                             <v-col cols="12" md="6">
-                                <v-select label="Nghề nghiệp" v-model="patient.occupation" :items="occupationOptions" variant="outlined"></v-select>
+                                <v-text-field label="Chi phí dự trù" v-model="patient.estimatedCost" variant="outlined"></v-text-field>
                             </v-col>
                             <v-col cols="12" md="6">
-                                <v-checkbox label="Có đang hút thuốc không?" v-model="patient.isSmoker" hide-details color="primary"></v-checkbox>
-                                <v-checkbox label="Có đang dùng thuốc theo toa không?" v-model="patient.isOnMedication" hide-details color="primary" class="mt-4"></v-checkbox>
+                                <v-textarea label="Ghi chú nhu cầu" v-model="patient.needsNotes" rows="2" variant="outlined"></v-textarea>
                             </v-col>
+                            
                         </v-row>
                         
                         <v-row v-else-if="step.value === 4">
@@ -156,39 +139,28 @@
                         </v-row>
                         
                     </v-window-item>
-                </v-form>
-            </v-window>
-        </v-col>
-    </v-row>
+                </v-window>
+            </v-col>
+        </v-row>
+    </v-form>
     
-    <!-- Actions (Bottom Bar - CHỈ CHO DESKTOP) -->
-    <v-card-actions v-if="!isMobile" class="pa-4 mt-4 d-flex justify-space-between bg-grey-lighten-4 rounded-lg">
-        <v-btn v-if="activeStep > 1" 
-               @click="prevStep" 
+    <!-- SỬA: Actions (Chỉ còn Lưu và Hủy) -->
+    <div class="form-footer d-flex justify-end bg-grey-lighten-4 mt-4 rounded-lg">
+        <v-btn @click="closeForm" 
                variant="outlined" 
                color="secondary" 
-               prepend-icon="mdi-arrow-left">
-            Quay lại
+               class="me-3">
+            Hủy
         </v-btn>
-        <v-spacer v-else></v-spacer>
         
-        <v-btn v-if="activeStep < steps.length"
-               @click="nextStep"
+        <v-btn @click="savePatient"
                color="primary"
                :loading="loading"
-               prepend-icon="mdi-arrow-right"
-               :disabled="!isCurrentStepValid">
-            Tiếp theo
+               prepend-icon="mdi-content-save"
+               :disabled="isSaveDisabled"> <!-- Bind tới logic kiểm tra toàn bộ form -->
+            Lưu Thông Tin
         </v-btn>
-        
-        <v-btn v-else
-               @click="savePatient"
-               color="success"
-               :loading="loading"
-               prepend-icon="mdi-content-save-all">
-            Lưu thông tin
-        </v-btn>
-    </v-card-actions>
+    </div>
     
     <!-- Message Dialog for confirmations and notifications -->
     <message-dialog v-model="showDialog" :type="dialogConfig.type" :title="dialogConfig.title"

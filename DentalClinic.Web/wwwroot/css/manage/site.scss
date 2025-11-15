@@ -465,10 +465,16 @@ a.text-primary {
         gap: 15px;
     }
 
+    .v-input-selecttion-custom {
+        .v-input__control {
+            background-color: $background-style-1 !important;
+        }
+    }
+
     .v-input__control {
         background-color: $background-light;
 
-        .v-selection-control {
+        .v-selection-control-group, .v-selection-control {
             background-color: $background-style-1
         }
     }

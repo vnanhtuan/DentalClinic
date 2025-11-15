@@ -328,7 +328,7 @@ export const LayoutPage = {
             }
         },
         goToCreateCustomer() {
-            this.showPatientForm = true; // Bật Drawer
+            this.showPatientForm = true; 
         },
         handlePatientCreated(newPatientId) {
             // Có thể thêm logic thông báo tại đây hoặc chuyển hướng đến trang chi tiết bệnh nhân
